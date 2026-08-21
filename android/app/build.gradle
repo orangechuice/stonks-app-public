@@ -1,0 +1,81 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace = "com.orangechuice.stonksapp"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.orangechuice.stonksapp"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 10005
+        versionName "1.0.5"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    // Release signing is read from the environment so anyone can build this
+    // project without the author's secrets. When STONKS_KEYSTORE_FILE and its
+    // companions are set (CI, or a local release build) the APK is signed with
+    // the real key; when they are absent the build falls back to the debug key
+    // so `npm run android:build` still produces an installable APK.
+    //
+    // The real keystore lives outside both repos. Losing it means existing
+    // users can no longer upgrade in place, so keep it backed up.
+    signingConfigs {
+        release {
+            def keystorePath = System.getenv("STONKS_KEYSTORE_FILE")
+            if (keystorePath) {
+                storeFile file(keystorePath)
+                storePassword System.getenv("STONKS_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("STONKS_KEY_ALIAS")
+                keyPassword System.getenv("STONKS_KEY_PASSWORD")
+            }
+        }
+    }
+    buildTypes {
+        debug {
+            applicationIdSuffix ".test"
+            resValue "string", "app_name", "stonks-test"
+            resValue "string", "title_activity_main", "stonks-test"
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue "string", "app_name", "Stonks"
+            resValue "string", "title_activity_main", "Stonks"
+            signingConfig System.getenv("STONKS_KEYSTORE_FILE") ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

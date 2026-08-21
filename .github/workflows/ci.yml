@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    name: No private files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # This repo is exported from a private working repo. The export is
+      # allowlist-driven, so this should never fire — it exists to catch a
+      # hand-edit or a bad merge, where the allowlist offers no protection.
+      #
+      # Keep in sync with FORBIDDEN_PATHS / FORBIDDEN_GLOBS in the upstream
+      # tools/export-public.sh.
+      - name: Check for files that must never be published
+        run: |
+          fail=0
+          for p in .claude .env AGENTS.md CLAUDE.md tools android/local.properties; do
+            if [ -e "$p" ]; then
+              echo "::error::$p must not exist in the public repo"
+              fail=1
+            fi
+          done
+          for f in $(git ls-files -- \
+                       '*.pem' '*.key' '*.keystore' '*.jks' '*.apk' '*.aab' \
+                       '.env' '.env.*' 'local.properties' 'google-services.json'); do
+            echo "::error file=$f::$f must not be committed"
+            fail=1
+          done
+          exit $fail
+
+  build:
+    name: Test and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build web bundle
+        run: npm run build
+
+  android:
+    name: Android debug build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install dependencies
+        run: npm install
+
+      # Proves the Capacitor container is self-contained: this runs with no
+      # keystore configured, which is the state a first-time contributor is in.
+      - name: Assemble debug APK
+        run: npm run android:build:test

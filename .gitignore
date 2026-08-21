@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+
+# Production build output
+dist/
+dist_electron/
+dist-ssr/
+*.local
+
+# Packaged app binaries. These are release artifacts published to GitHub
+# Releases by CI — they are signed builds and do not belong in git.
+*.apk
+*.aab
+*.dmg
+*.zip
+
+# Android / Gradle build outputs. local.properties carries the absolute path
+# to your Android SDK, which is specific to your machine.
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/
+android/app/src/main/assets/
+android/app/src/main/res/xml/config.xml
+
+# Release signing material. Never commit these: a leaked keystore lets anyone
+# publish an update that Android will install over the real app.
+*.keystore
+*.jks
+google-services.json
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# macOS / OS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Trashes
+
+# Editor directories & files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
