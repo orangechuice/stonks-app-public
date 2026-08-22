@@ -17,6 +17,12 @@ concurrency:
 
 jobs:
   deploy:
+    # This file is exported to the public mirror, so it exists in the private
+    # working repo too — where it must not run: the public Pages site is served
+    # from the mirror. Guarding on the repository name keeps a single copy of
+    # this workflow instead of two that drift apart.
+    if: github.repository == 'orangechuice/stonks-app-public'
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

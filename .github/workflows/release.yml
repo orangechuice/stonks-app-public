@@ -26,6 +26,11 @@ permissions:
 
 jobs:
   publish-release:
+    # Same reason as deploy.yml: this file is exported to the public mirror, so
+    # it also exists upstream. Public binaries are published from the mirror, so
+    # a tag pushed to the private repo must not build a second, private release.
+    if: github.repository == 'orangechuice/stonks-app-public'
+
     runs-on: macos-latest
 
     # Lifted to job level because the `secrets` context is not available in a
@@ -71,16 +76,22 @@ jobs:
           STONKS_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           STONKS_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           STONKS_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        # Order matters. `npm run android:build` calls `npm run build`, whose
+        # `clean` step deletes dist_electron/ — so it has to run BEFORE
+        # electron-builder, or it wipes the .dmg, .zip and latest-mac.yml that
+        # electron-builder just produced and the release ships as APK-only.
         run: |
-          npm run build
-          npx electron-builder --mac --publish never
           npm run android:build
-          mkdir -p dist_electron
+          npx electron-builder --mac --publish never
           cp Stonks.apk dist_electron/
 
       - name: Upload Release Assets to GitHub
         uses: softprops/action-gh-release@v2
         with:
+          # Fail loudly if an artifact is missing. Without this the release
+          # publishes whatever happens to be there, which is how a build-order
+          # mistake ships a release with no macOS build and no updater manifest.
+          fail_on_unmatched_files: true
           files: |
             dist_electron/*.dmg
             dist_electron/*.zip
