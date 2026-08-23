@@ -56,3 +56,6 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Local agent config: names the private repo on this machine. Never published.
+.claude/
