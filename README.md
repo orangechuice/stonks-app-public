@@ -138,7 +138,7 @@ npm install
 ```bash
 npm run electron:build
 ```
-Outputs macOS packages to `dist_electron/` (e.g. `dist_electron/Stonks-1.0.5-arm64.dmg`).
+Outputs macOS packages to `dist_electron/` (e.g. `dist_electron/Stonks-<version>-arm64.dmg`).
 
 #### 5. Building the Android App (.apk)
 - **Build Test App (`stonks-test.apk`)**:

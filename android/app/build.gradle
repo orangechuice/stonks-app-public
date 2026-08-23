@@ -1,5 +1,24 @@
 apply plugin: 'com.android.application'
 
+// The version is single-sourced from package.json, which also drives the web
+// build and the macOS .dmg/latest-mac.yml. Hardcoding it here as well meant a
+// release could ship an APK with a stale versionCode — and Android silently
+// refuses to install an update whose versionCode has not increased, so the bug
+// only surfaces as "users cannot upgrade".
+//
+// versionCode keeps the existing scheme: 1.0.5 -> 10005.
+// Resolved into locals first, and with explicit parentheses at the call sites
+// below. Written as `versionCode (expr) as Integer` Groovy binds the cast to the
+// setter's return value rather than to the argument, which fails only when the
+// override property is set — that is, only in CI.
+def pkgVersionName = new groovy.json.JsonSlurper()
+        .parse(file("$rootDir/../package.json")).version
+def versionParts = pkgVersionName.split('-')[0].tokenize('.').collect { it.toInteger() }
+def pkgVersionCode = versionParts[0] * 10000 + versionParts[1] * 100 + versionParts[2]
+
+def resolvedVersionName = (project.findProperty('appVersionName') ?: pkgVersionName).toString()
+def resolvedVersionCode = Integer.parseInt((project.findProperty('appVersionCode') ?: pkgVersionCode).toString())
+
 android {
     namespace = "com.orangechuice.stonksapp"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,8 +26,8 @@ android {
         applicationId "com.orangechuice.stonksapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10005
-        versionName "1.0.5"
+        versionCode(resolvedVersionCode)
+        versionName(resolvedVersionName)
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

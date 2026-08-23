@@ -48,6 +48,24 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      # The version lives in package.json and everything else derives from it:
+      # the .dmg filename, the latest-mac.yml the desktop updater compares
+      # against, and the APK's versionCode, which Android uses to decide whether
+      # an upgrade is even permitted. A tag that disagrees with it produces
+      # artifacts that lie about their own version, so fail before building
+      # rather than after publishing.
+      - name: Verify tag matches package.json version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$PKG" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json version $PKG."
+            echo "::error::Bump the version upstream, sync the mirror, then tag the sync commit."
+            exit 1
+          fi
+          echo "version $PKG matches tag $GITHUB_REF_NAME"
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
