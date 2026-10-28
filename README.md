@@ -9,14 +9,24 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/orangechuice/stonks-app-public/releases/latest" target="_blank">
+    <img src="https://img.shields.io/badge/⬇_DOWNLOAD_FOR_MACOS-.DMG_·_APPLE_SILICON-0A84FF?style=for-the-badge&logo=apple&logoColor=white&labelColor=000000" height="40" alt="Download the macOS app" />
+  </a>
+  <a href="https://github.com/orangechuice/stonks-app-public/releases/latest" target="_blank">
+    <img src="https://img.shields.io/badge/⬇_DOWNLOAD_FOR_ANDROID-.APK_·_ANDROID_7.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white&labelColor=000000" height="40" alt="Download the Android app" />
+  </a>
+</p>
+
+<p align="center">
   <a href="https://orangechuice.github.io/stonks-app-public/" target="_blank">
     <img src="https://img.shields.io/badge/🌐_TRY_LIVE_WEB_APP-CLICK_HERE_TO_LAUNCH-0A84FF?style=for-the-badge&logo=github&logoColor=white&labelColor=000000" height="40" alt="Try Live Web Application" />
   </a>
 </p>
 
 <p align="center">
+  <a href="https://github.com/orangechuice/stonks-app-public/releases/latest" target="_blank"><img src="https://img.shields.io/github/v/release/orangechuice/stonks-app-public?style=for-the-badge&label=Release&color=0A84FF" alt="Latest release" /></a>
   <img src="https://img.shields.io/badge/Electron-29.1.5-47A248?style=for-the-badge&logo=electron&logoColor=white" alt="Electron" />
-  <img src="https://img.shields.io/badge/Android-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android" />
+  <img src="https://img.shields.io/badge/Android-7.0%2B-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android 7.0+" />
   <img src="https://img.shields.io/badge/React-18.2.0-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-5.2.2-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Vite-5.1.6-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
@@ -37,7 +47,7 @@
 > **💻 Native macOS Desktop & 📱 Android Applications are Recommended!!**
 > While a live web version is hosted on [GitHub Pages](https://orangechuice.github.io/stonks-app-public/), web browsers block direct cross-origin requests to financial data APIs, requiring web traffic to route through public CORS proxies (`corsproxy.io`, `allorigins.win`). Heavy web traffic or frequent timeframe switching can occasionally hit public CORS proxy rate limits (`HTTP 429`).
 > 
-> **For the fastest, unthrottled experience with 100% data reliability, run the native macOS application (`npm run electron:dev` / `.dmg`) or the Android app (`.apk`)**, which execute requests natively without CORS proxy throttling!
+> **For the fastest, unthrottled experience with 100% data reliability, download a prebuilt native app from [Releases](https://github.com/orangechuice/stonks-app-public/releases/latest) — the macOS `.dmg` or the Android `.apk`** — both execute requests natively, with no CORS proxy and no rate limits. Nothing to build and no toolchain required.
 
 ---
 
@@ -90,7 +100,15 @@ Stonks combines a modern React web frontend with Electron desktop and Capacitor 
 
 ### 📦 Pre-built macOS & Android Releases (GitHub Releases)
 
-Download pre-compiled `.dmg`, `.zip`, and `.apk` binaries directly from [GitHub Releases](https://github.com/orangechuice/stonks-app-public/releases).
+Every tagged version publishes ready-to-run binaries for **both** native platforms — no toolchain and no build step required. Download them from [GitHub Releases](https://github.com/orangechuice/stonks-app-public/releases/latest):
+
+| Platform | Asset | Requirements |
+| :--- | :--- | :--- |
+| 💻 **macOS** | `Stonks-<version>-arm64.dmg` (or `Stonks-<version>-arm64-mac.zip`) | Apple Silicon (M-series). Unnotarized — see below. |
+| 📱 **Android** | `Stonks.apk` | Android 7.0 (API 24) or newer. Sideloaded — see below. |
+
+> [!TIP]
+> **The desktop app updates itself; the Android app does not.** Packaged macOS builds check GitHub Releases on launch through `electron-updater` and prompt when a newer version is available. Android has no update channel here, so re-download `Stonks.apk` from the latest release and install it over the top when a new version ships.
 
 #### macOS Security Note:
 > [!NOTE]
@@ -102,7 +120,24 @@ Download pre-compiled `.dmg`, `.zip`, and `.apk` binaries directly from [GitHub 
 > ```
 
 #### Android Installation:
-Download `Stonks.apk` from the latest release onto your Android phone or tablet, open the file, and tap **Install**.
+Stonks is **not distributed through the Google Play Store**, so the APK is installed directly:
+
+1. Download `Stonks.apk` from the [latest release](https://github.com/orangechuice/stonks-app-public/releases/latest) onto your Android phone or tablet.
+2. Open it from your browser's downloads or a file manager and tap **Install**.
+3. The first time, Android asks whether to allow installs from that app — tap **Settings** $\rightarrow$ enable **Allow from this source** $\rightarrow$ go back and tap **Install**.
+4. Play Protect may warn about an app from an unknown developer — tap **More details** $\rightarrow$ **Install anyway**.
+
+> [!NOTE]
+> Released APKs are signed with a stable release key, so each new version installs **over** the previous one and your watchlist survives the upgrade.
+>
+> To verify a download before installing it:
+> ```bash
+> apksigner verify --print-certs Stonks.apk
+> ```
+> The SHA-256 certificate digest should be:
+> ```
+> b9:9a:c4:14:56:d7:c5:19:75:1e:8d:a0:65:c2:ab:03:cf:c5:e9:92:50:31:50:34:f7:e6:0f:a7:09:d6:d8:26
+> ```
 
 ---
 
@@ -153,6 +188,11 @@ Outputs macOS packages to `dist_electron/` (e.g. `dist_electron/Stonks-<version>
   ```bash
   npm run android:install:test
   ```
+
+> [!IMPORTANT]
+> Release signing is read from the environment (`STONKS_KEYSTORE_FILE`, `STONKS_KEYSTORE_PASSWORD`, `STONKS_KEY_ALIAS`, `STONKS_KEY_PASSWORD`), so the project builds for anyone without the author's keys. When those are unset, `npm run android:build` falls back to Android's debug key. The resulting APK installs and runs fine on a clean device, but it shares an application ID with the published build while carrying a different signature — so it **will not install over** a `Stonks.apk` downloaded from Releases, and vice versa. Uninstall one before installing the other, or use `npm run android:build:test`, which builds `stonks-test` under a separate `.test` application ID and sits alongside it.
+>
+> Published APKs are built and signed by the `release.yml` GitHub Actions workflow, which compiles the Android and macOS artifacts for the same tag and uploads them to the release.
 
 #### 6. Building & Deploying Web Version
 - **Build Web Bundle**: `npm run build`
