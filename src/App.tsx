@@ -287,7 +287,7 @@ export const App: React.FC = () => {
     if (Capacitor.isNativePlatform()) {
       import('@capacitor/status-bar').then(({ StatusBar, Style }) => {
         StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
-        StatusBar.setBackgroundColor({ color: '#0E0E10' }).catch(() => {});
+        StatusBar.setBackgroundColor({ color: '#111318' }).catch(() => {});
       });
     }
   }, []);
@@ -321,7 +321,7 @@ export const App: React.FC = () => {
   }, [isSearchModalOpen, isMobileDetailOpen, isSearchOpen]);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#000000', overflow: 'hidden' }}>
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--md-sys-color-surface)', overflow: 'hidden' }}>
       {/* Title Bar */}
       <Titlebar
         isSidebarOpen={isSidebarOpen}

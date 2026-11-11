@@ -5,7 +5,7 @@
 <h1 align="center">Stonks</h1>
 
 <p align="center">
-  <strong>A native macOS-inspired stock tracking & financial analytics desktop and mobile application.</strong>
+  <strong>A modern stock tracking & financial analytics application built to Material 3 design standards for Desktop, Mobile, and Web.</strong>
 </p>
 
 <p align="center">
@@ -37,7 +37,7 @@
 
 ## 📸 Overview
 
-**Stonks** delivers a sleek, responsive, and native stock monitoring experience built with Electron, Capacitor, React, TypeScript, and Vite. Designed specifically with macOS design principles and responsive mobile bottom-sheets in mind, it provides real-time market quotes, detailed interactive charts, customizable watchlist drag-and-drop ordering, and key stock metrics on macOS, Web, and Android.
+**Stonks** delivers a sleek, responsive, and modern stock monitoring experience built with Electron, Capacitor, React, TypeScript, and Vite. Designed to **Material 3 (Material You)** design standards with responsive mobile bottom-sheets, it provides real-time market quotes, detailed interactive charts, customizable watchlist drag-and-drop ordering, and key stock metrics across Desktop, Web, and Android.
 
 <p align="center">
   <img src="public/screenshot.png" width="100%" alt="Stonks Application Screenshot" />
@@ -53,10 +53,10 @@
 
 ## ✨ Features
 
-- ** Native macOS & 📱 Android Experience**: Built with a sleek dark-mode palette (`#0E0E10`), frameless inset title bar on desktop, native status bar, and swipe-down bottom detail sheets on mobile devices.
-- **📊 Interactive Stock Charts**: View market trends across flexible timeframes (`1D`, `1W`, `1M`, `3M`, `6M`, `YTD`, `1Y`, `5Y`, `ALL`, `CUSTOM`) complete with dynamic SVG line gradients, range axes, hover tooltips, price crosshairs, and custom start/end date range selection.
-- **📅 Custom Date Ranges**: Select any custom start and end date (including single full trading days or multi-day periods) to calculate price changes and render custom charts.
-- **🟢 Dynamic Color Indicators**: Visual feedback that dynamically adapts gradient overlays and badge highlights—emerald green (`#30D158`) for gains and ruby red (`#FF453A`) for market dips.
+- **📱 Android & 💻 Desktop Experience**: Built to **Material 3 (Material You)** standards with tonal surface containers (`#111318` / `#1D2024`), dynamic tonal elevation, M3 Top App Bar, M3 Navigation Drawer, and M3 Modal Bottom Sheets with swipe-down gestures on mobile devices.
+- **📊 Interactive Stock Charts**: View market trends across flexible timeframes (`1D`, `1W`, `1M`, `3M`, `6M`, `YTD`, `1Y`, `5Y`, `ALL`, `CUSTOM`) using Material 3 filter chips, dynamic SVG line gradients, range axes, hover tooltips, price crosshairs, and custom start/end date range selection.
+- **📅 Custom Date Ranges**: Select any custom start and end date (including single full trading days or multi-day periods) to calculate price changes and render custom charts in an M3 date range dialog.
+- **🟢 Dynamic Color Indicators**: Visual feedback that dynamically adapts gradient overlays and badge highlights—smoothly transitioning from yellow at 0% to green for gains and red for dips, scaling logarithmically down to a maximum dark shade of green or red at ±100% (with moves beyond ±100% sharing the maximum dark shade).
 - **⚡ Live Market Quotes & Key Statistics**: Fetches realtime data via Yahoo Finance API including current price, daily change, high/low bounds, volume, 52-week ranges, market cap, and P/E ratios.
 - **🌙 After-Hours & Pre-Market Tracking**: Displays extended market hours moves on the 1D setting similar to the Apple Stock app, complete with dual "At Close" and "After Hours" / "Pre-Market" header quotes, session boundary indicators, and dashed line chart segments.
 - **⚡ 30-Second TTL Caching & Auto-Refresh**: Instantaneous ticker switching with 30s in-memory response caching and automated 30s background polling for live quotes.

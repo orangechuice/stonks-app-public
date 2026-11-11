@@ -70,42 +70,49 @@ export const SearchModal: React.FC<SearchModalProps> = ({
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-        backdropFilter: 'blur(12px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.65)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'center',
-        paddingTop: '12vh',
+        paddingTop: '10vh',
         zIndex: 1000,
         userSelect: 'none',
+        paddingLeft: '16px',
+        paddingRight: '16px',
       }}
       onClick={onClose}
     >
+      {/* Material 3 Search Dialog */}
       <div
         style={{
           width: '100%',
-          maxWidth: '560px',
-          backgroundColor: '#1E1E22',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
-          borderRadius: '16px',
-          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)',
+          maxWidth: '580px',
+          backgroundColor: 'var(--md-sys-color-surface-container-high)',
+          border: '1px solid var(--md-sys-color-outline-variant)',
+          borderRadius: 'var(--md-sys-shape-extra-large)',
+          boxShadow: 'var(--md-sys-elevation-3)',
           overflow: 'hidden',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Search Input Bar */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          padding: '16px 20px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-          gap: '12px',
-        }}>
-          <Search style={{ width: 18, height: 18, color: 'rgba(255,255,255,0.4)' }} />
+        {/* Search Input Bar (M3 56px height) */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            padding: '12px 20px',
+            borderBottom: '1px solid var(--md-sys-color-outline-variant)',
+            gap: '14px',
+            minHeight: '56px',
+          }}
+        >
+          <Search style={{ width: 20, height: 20, color: 'var(--md-sys-color-on-surface-variant)', flexShrink: 0 }} />
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search symbol or company name (e.g. AAPL, NVDA, Tesla)..."
+            placeholder="Search symbol or company name (e.g. AAPL, NVDA, GOOGL)..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -114,7 +121,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({
               background: 'none',
               border: 'none',
               outline: 'none',
-              color: '#FFF',
+              color: 'var(--md-sys-color-on-surface)',
+              fontFamily: 'var(--md-sys-typescale-font-plain)',
               fontSize: '15px',
               fontWeight: 500,
             }}
@@ -122,40 +130,62 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           {query ? (
             <button
               onClick={() => setQuery('')}
-              style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}
+              className="md-icon-button"
+              style={{ width: 32, height: 32 }}
+              aria-label="Clear Search"
             >
-              <X style={{ width: 16, height: 16 }} />
+              <X size={16} />
             </button>
           ) : null}
-          <kbd style={{ fontSize: 10, background: 'rgba(255,255,255,0.1)', padding: '3px 6px', borderRadius: 4, fontFamily: 'monospace', color: 'rgba(255,255,255,0.4)' }}>
+          <span
+            style={{
+              fontSize: 11,
+              backgroundColor: 'var(--md-sys-color-surface-container-highest)',
+              border: '1px solid var(--md-sys-color-outline-variant)',
+              padding: '2px 8px',
+              borderRadius: 'var(--md-sys-shape-small)',
+              fontFamily: 'var(--md-sys-typescale-font-mono)',
+              color: 'var(--md-sys-color-on-surface-variant)',
+              fontWeight: 600,
+            }}
+          >
             ESC
-          </kbd>
+          </span>
         </div>
 
-        {/* Rate Limit Alert Notice */}
+        {/* Rate Limit Alert Notice (M3 Warning Card) */}
         {isRateLimited && !window.electronAPI && !Capacitor.isNativePlatform() && (
-          <div style={{
-            margin: '12px 16px 4px 16px',
-            padding: '10px 14px',
-            borderRadius: 10,
-            backgroundColor: 'rgba(255, 159, 10, 0.12)',
-            border: '1px solid rgba(255, 159, 10, 0.25)',
-            color: '#FF9F0A',
-            fontSize: 12,
-            fontWeight: 500,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-          }}>
+          <div
+            style={{
+              margin: '12px 16px 4px 16px',
+              padding: '10px 14px',
+              borderRadius: 'var(--md-sys-shape-medium)',
+              backgroundColor: 'var(--md-sys-color-warning-container)',
+              border: '1px solid rgba(255, 186, 40, 0.3)',
+              color: 'var(--md-sys-color-on-warning-container)',
+              fontSize: 12,
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+            }}
+          >
             <AlertTriangle size={16} style={{ flexShrink: 0 }} />
             <span>Rate limit exceeded (HTTP 429). Web proxy throttling search requests. Retrying shortly...</span>
           </div>
         )}
 
         {/* Results List */}
-        <div style={{ maxHeight: '360px', overflowY: 'auto' }} className="custom-scrollbar">
+        <div style={{ maxHeight: '380px', overflowY: 'auto' }} className="custom-scrollbar">
           {isSearching ? (
-            <div style={{ padding: '24px', textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
+            <div
+              style={{
+                padding: '28px',
+                textAlign: 'center',
+                fontSize: 13,
+                color: 'var(--md-sys-color-on-surface-variant)',
+              }}
+            >
               Searching stock market...
             </div>
           ) : results.length > 0 ? (
@@ -169,45 +199,109 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '12px 20px',
-                    borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    padding: '14px 20px',
+                    borderBottom: '1px solid var(--md-sys-color-outline-variant)',
                     cursor: 'pointer',
-                    transition: 'background 0.15s ease',
+                    transition: 'background-color var(--md-sys-motion-duration-short) ease',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--md-sys-state-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: 'var(--md-sys-color-on-surface)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                      }}
+                    >
                       <span>{res.symbol}</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>· {res.exchange || 'US'}</span>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: 'var(--md-sys-color-on-surface-variant)',
+                          fontWeight: 400,
+                        }}
+                      >
+                        · {res.exchange || 'US'}
+                      </span>
                     </div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: 'var(--md-sys-color-on-surface-variant)',
+                        marginTop: 2,
+                      }}
+                    >
                       {res.shortname || res.longname}
                     </div>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {isAdded ? (
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.1)', padding: '3px 8px', borderRadius: 6 }}>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: 'var(--md-sys-color-on-surface-variant)',
+                          backgroundColor: 'var(--md-sys-color-surface-container-highest)',
+                          padding: '4px 10px',
+                          borderRadius: 'var(--md-sys-shape-full)',
+                        }}
+                      >
                         In Watchlist
                       </span>
                     ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#30D158', fontWeight: 600 }}>
+                      <button
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          backgroundColor: 'var(--md-sys-color-primary-container)',
+                          color: 'var(--md-sys-color-on-primary-container)',
+                          border: 'none',
+                          padding: '6px 12px',
+                          borderRadius: 'var(--md-sys-shape-full)',
+                          cursor: 'pointer',
+                        }}
+                      >
                         <span>Add</span>
-                        <Plus style={{ width: 14, height: 14 }} />
-                      </div>
+                        <Plus size={14} />
+                      </button>
                     )}
                   </div>
                 </div>
               );
             })
           ) : query.trim() ? (
-            <div style={{ padding: '24px', textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+            <div
+              style={{
+                padding: '28px',
+                textAlign: 'center',
+                fontSize: 13,
+                color: 'var(--md-sys-color-on-surface-variant)',
+              }}
+            >
               No stock tickers found matching "{query.trim()}"
             </div>
           ) : (
-            <div style={{ padding: '24px', textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+            <div
+              style={{
+                padding: '28px',
+                textAlign: 'center',
+                fontSize: 13,
+                color: 'var(--md-sys-color-on-surface-variant)',
+              }}
+            >
               Type any stock symbol (e.g. AAPL, NVDA, SPY, TSLA) to add to your watchlist
             </div>
           )}

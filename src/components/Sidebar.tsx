@@ -132,8 +132,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const formattedDate = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
 
   return (
-    <aside className="mac-sidebar">
-      {/* Mobile iOS Header */}
+    <aside className="mac-sidebar md-nav-drawer" aria-label="Watchlist Drawer">
+      {/* Mobile M3 Header */}
       <div className="mobile-sidebar-header">
         <div>
           <h1 className="mobile-sidebar-title">Stocks</h1>
@@ -150,14 +150,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      {/* Search Header */}
+      {/* Material 3 Search Bar */}
       <div className="sidebar-search-header">
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <Search style={{ width: 14, height: 14, position: 'absolute', left: 10, top: 10, color: 'rgba(255,255,255,0.4)', pointerEvents: 'none' }} />
+          <Search
+            style={{
+              width: 18,
+              height: 18,
+              position: 'absolute',
+              left: 14,
+              color: 'var(--md-sys-color-on-surface-variant)',
+              pointerEvents: 'none',
+              zIndex: 2,
+            }}
+          />
           <input
             ref={searchInputRef}
             type="text"
-            placeholder="Search Tickers (e.g. NVDA, AAPL)..."
+            placeholder="Search symbols (e.g. NVDA, AAPL)..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -173,31 +183,54 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 setSearchQuery('');
                 setSearchResults([]);
               }}
-              style={{ position: 'absolute', right: 10, top: 8, background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}
+              style={{
+                position: 'absolute',
+                right: 12,
+                background: 'none',
+                border: 'none',
+                color: 'var(--md-sys-color-on-surface-variant)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px',
+                borderRadius: 'var(--md-sys-shape-full)',
+              }}
+              aria-label="Clear Search"
             >
-              <X style={{ width: 14, height: 14 }} />
+              <X size={16} />
             </button>
           ) : null}
         </div>
 
-        {/* Autocomplete Dropdown */}
+        {/* M3 Autocomplete Search Dropdown */}
         {isSearchOpen && (searchQuery.trim() || isSearching) && (
-          <div style={{
-            position: 'absolute',
-            left: 12,
-            right: 12,
-            top: 54,
-            backgroundColor: '#1C1C20',
-            border: '1px solid rgba(255,255,255,0.15)',
-            borderRadius: 12,
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-            overflow: 'hidden',
-            zIndex: 100,
-            maxHeight: 280,
-            overflowY: 'auto',
-          }}>
+          <div
+            style={{
+              position: 'absolute',
+              left: 14,
+              right: 14,
+              top: 66,
+              backgroundColor: 'var(--md-sys-color-surface-container-high)',
+              border: '1px solid var(--md-sys-color-outline-variant)',
+              borderRadius: 'var(--md-sys-shape-large)',
+              boxShadow: 'var(--md-sys-elevation-3)',
+              overflow: 'hidden',
+              zIndex: 100,
+              maxHeight: 280,
+              overflowY: 'auto',
+            }}
+            className="custom-scrollbar"
+          >
             {isSearching ? (
-              <div style={{ padding: 16, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+              <div
+                style={{
+                  padding: 16,
+                  textAlign: 'center',
+                  fontSize: 13,
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                }}
+              >
                 Searching market symbols...
               </div>
             ) : searchResults.length > 0 ? (
@@ -210,40 +243,88 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     style={{
                       width: '100%',
                       textAlign: 'left',
-                      padding: '10px 12px',
+                      padding: '12px 14px',
                       background: 'none',
                       border: 'none',
-                      borderBottom: '1px solid rgba(255,255,255,0.05)',
+                      borderBottom: '1px solid var(--md-sys-color-outline-variant)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       cursor: 'pointer',
-                      color: '#FFF',
+                      color: 'var(--md-sys-color-on-surface)',
+                      transition: 'background-color var(--md-sys-motion-duration-short) ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--md-sys-state-hover)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
                     }}
                   >
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span>{result.symbol}</span>
                         {result.exchange && (
-                          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>· {result.exchange}</span>
+                          <span style={{ fontSize: 11, color: 'var(--md-sys-color-on-surface-variant)', fontWeight: 400 }}>
+                            · {result.exchange}
+                          </span>
                         )}
                       </div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: 'var(--md-sys-color-on-surface-variant)',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          maxWidth: 190,
+                          marginTop: 2,
+                        }}
+                      >
                         {result.shortname || result.longname}
                       </div>
                     </div>
                     {isAlreadyAdded ? (
-                      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: 4 }}>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: 'var(--md-sys-color-on-surface-variant)',
+                          backgroundColor: 'var(--md-sys-color-surface-container-highest)',
+                          padding: '3px 8px',
+                          borderRadius: 'var(--md-sys-shape-full)',
+                        }}
+                      >
                         Added
                       </span>
                     ) : (
-                      <Plus style={{ width: 16, height: 16, color: 'rgba(255,255,255,0.6)' }} />
+                      <div
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: 'var(--md-sys-shape-full)',
+                          backgroundColor: 'var(--md-sys-color-primary-container)',
+                          color: 'var(--md-sys-color-on-primary-container)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Plus size={16} />
+                      </div>
                     )}
                   </button>
                 );
               })
             ) : (
-              <div style={{ padding: 16, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+              <div
+                style={{
+                  padding: 16,
+                  textAlign: 'center',
+                  fontSize: 13,
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                }}
+              >
                 No tickers found
               </div>
             )}
@@ -251,58 +332,66 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </div>
 
-      {/* Web Proxy Rate Limit Alert Banner */}
+      {/* Web Proxy Rate Limit Alert Banner (M3 Warning Card) */}
       {isRateLimited && !window.electronAPI && !Capacitor.isNativePlatform() && (
-        <div style={{
-          margin: '8px 12px 4px 12px',
-          padding: '8px 12px',
-          borderRadius: 8,
-          backgroundColor: 'rgba(255, 159, 10, 0.12)',
-          border: '1px solid rgba(255, 159, 10, 0.3)',
-          color: '#FF9F0A',
-          fontSize: 11,
-          fontWeight: 600,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-        }}>
-          <AlertTriangle size={14} style={{ flexShrink: 0 }} />
-          <div style={{ lineHeight: 1.3 }}>
+        <div
+          style={{
+            margin: '6px 12px 6px 12px',
+            padding: '10px 12px',
+            borderRadius: 'var(--md-sys-shape-medium)',
+            backgroundColor: 'var(--md-sys-color-warning-container)',
+            border: '1px solid rgba(255, 186, 40, 0.3)',
+            color: 'var(--md-sys-color-on-warning-container)',
+            fontSize: 12,
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            boxShadow: 'var(--md-sys-elevation-1)',
+          }}
+        >
+          <AlertTriangle size={16} style={{ flexShrink: 0 }} />
+          <div style={{ lineHeight: 1.35 }}>
             <span style={{ fontWeight: 700 }}>Rate Limited (HTTP 429)</span>
-            <div style={{ fontSize: 10, opacity: 0.85 }}>Web CORS proxy is throttling requests. Retrying shortly...</div>
+            <div style={{ fontSize: 11, opacity: 0.9 }}>Web CORS proxy is throttling requests. Retrying shortly...</div>
           </div>
         </div>
       )}
 
       {/* Section Header */}
-      <div style={{
-        padding: '8px 14px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        fontSize: 11,
-        fontWeight: 700,
-        color: 'rgba(255,255,255,0.4)',
-        textTransform: 'uppercase',
-        letterSpacing: '0.05em',
-        borderBottom: '1px solid rgba(255,255,255,0.05)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div
+        style={{
+          padding: '10px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: 12,
+          fontWeight: 700,
+          color: 'var(--md-sys-color-on-surface-variant)',
+          letterSpacing: '0.04em',
+          borderBottom: '1px solid var(--md-sys-color-outline-variant)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span>Watchlist ({watchlist.length})</span>
-          <span style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.12)',
-            color: '#FFFFFF',
-            padding: '1px 6px',
-            borderRadius: 4,
-            fontSize: 10,
-            fontWeight: 800,
-            letterSpacing: '0.02em',
-          }}>{selectedTimeframe}</span>
+          <span
+            style={{
+              backgroundColor: 'var(--md-sys-color-surface-container-highest)',
+              color: 'var(--md-sys-color-on-surface)',
+              padding: '2px 8px',
+              borderRadius: 'var(--md-sys-shape-full)',
+              fontSize: 11,
+              fontWeight: 700,
+              fontFamily: 'var(--md-sys-typescale-font-mono)',
+              border: '1px solid var(--md-sys-color-outline-variant)',
+            }}
+          >
+            {selectedTimeframe}
+          </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600 }}>
           {(() => {
-            const activeStock = watchlist.find(s => s.symbol.toUpperCase() === selectedSymbol.toUpperCase()) || watchlist[0];
+            const activeStock = watchlist.find((s) => s.symbol.toUpperCase() === selectedSymbol.toUpperCase()) || watchlist[0];
             const state = activeStock?.marketState;
             const isLive = state === 'REGULAR';
             const label = isLive
@@ -316,9 +405,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
             return (
               <>
                 {isLive && (
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#30D158', display: 'inline-block' }} />
+                  <span
+                    style={{
+                      width: 7,
+                      height: 7,
+                      borderRadius: '50%',
+                      backgroundColor: 'var(--md-sys-color-positive)',
+                      display: 'inline-block',
+                      boxShadow: '0 0 6px var(--md-sys-color-positive)',
+                    }}
+                  />
                 )}
-                <span style={{ color: isLive ? '#30D158' : 'rgba(255,255,255,0.4)' }}>
+                <span style={{ color: isLive ? 'var(--md-sys-color-positive)' : 'var(--md-sys-color-on-surface-variant)' }}>
                   {label}
                 </span>
               </>
@@ -330,19 +428,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Watchlist Item Cards */}
       <div className="sidebar-item-list custom-scrollbar">
         {watchlist.length === 0 ? (
-          <div style={{ padding: '36px 16px', textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>
-            <p style={{ marginBottom: 12 }}>Your watchlist is empty.</p>
+          <div
+            style={{
+              padding: '40px 16px',
+              textAlign: 'center',
+              color: 'var(--md-sys-color-on-surface-variant)',
+              fontSize: 13,
+            }}
+          >
+            <p style={{ marginBottom: 16 }}>Your watchlist is empty.</p>
             <button
               onClick={() => setIsSearchOpen(true)}
               style={{
-                padding: '8px 16px',
-                backgroundColor: '#0A84FF',
-                color: '#FFF',
+                padding: '10px 20px',
+                backgroundColor: 'var(--md-sys-color-primary)',
+                color: 'var(--md-sys-color-on-primary)',
                 border: 'none',
-                borderRadius: 8,
-                fontSize: 12,
+                borderRadius: 'var(--md-sys-shape-full)',
+                fontSize: 13,
                 fontWeight: 600,
                 cursor: 'pointer',
+                boxShadow: 'var(--md-sys-elevation-1)',
               }}
             >
               Add Tickers
@@ -355,17 +461,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
             const isDragOverAbove = dragOverIndex === index && draggedIndex !== null && draggedIndex > index;
             const isDragOverBelow = dragOverIndex === index && draggedIndex !== null && draggedIndex < index;
             const isOffline = stock.isOffline || stock.marketState === 'OFFLINE';
-            const shade = isOffline ? {
-              bgColor: 'rgba(255, 255, 255, 0.08)',
-              textColor: 'rgba(255, 255, 255, 0.4)',
-              borderColor: 'rgba(255, 255, 255, 0.12)',
-              strokeColor: 'rgba(255, 255, 255, 0.2)',
-              fillGradientStart: 'transparent',
-              fillGradientEnd: 'transparent',
-              glowColor: 'transparent',
-              intensity: 0,
-              isPositive: false,
-            } : getColorShade(stock.regularMarketChangePercent);
+            const shade = isOffline
+              ? {
+                  bgColor: 'rgba(255, 255, 255, 0.06)',
+                  textColor: 'var(--md-sys-color-on-surface-variant)',
+                  borderColor: 'var(--md-sys-color-outline-variant)',
+                  strokeColor: 'var(--md-sys-color-outline)',
+                  fillGradientStart: 'transparent',
+                  fillGradientEnd: 'transparent',
+                  glowColor: 'transparent',
+                  intensity: 0,
+                  isPositive: false,
+                }
+              : getColorShade(stock.regularMarketChangePercent);
             const isPositive = stock.regularMarketChangePercent >= 0;
 
             return (
@@ -380,17 +488,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onContextMenu={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  const menuWidth = 180;
-                  const menuHeight = 90;
+                  const menuWidth = 200;
+                  const menuHeight = 100;
                   const x = Math.min(e.clientX, window.innerWidth - menuWidth - 10);
                   const y = Math.min(e.clientY, window.innerHeight - menuHeight - 10);
                   setContextMenu({ x, y, symbol: stock.symbol });
                 }}
-                className={`watchlist-card ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''} ${isDragOverAbove ? 'drag-over-above' : ''} ${isDragOverBelow ? 'drag-over-below' : ''}`}
+                className={`watchlist-card ${isSelected ? 'selected' : ''} ${isDragging ? 'dragging' : ''} ${
+                  isDragOverAbove ? 'drag-over-above' : ''
+                } ${isDragOverBelow ? 'drag-over-below' : ''}`}
               >
                 {/* Drag Handle */}
                 <div className="drag-handle" title="Drag to reorder">
-                  <GripVertical style={{ width: 13, height: 13 }} />
+                  <GripVertical size={14} />
                 </div>
 
                 {/* Left Column: Symbol & Short Name */}
@@ -428,11 +538,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   ) : null}
                 </div>
 
-                {/* Right Column: Price & Dynamic Color Change Badge */}
+                {/* Right Column: Price & Material 3 Dynamic Tonal Change Badge */}
                 <div className="symbol-price-col">
-                  <div className="symbol-price">{isOffline ? '--' : formatCurrency(stock.regularMarketPrice, stock.currency)}</div>
+                  <div className="symbol-price">
+                    {isOffline ? '--' : formatCurrency(stock.regularMarketPrice, stock.currency)}
+                  </div>
 
-                  {/* DYNAMIC SHADED BADGE (Clickable to toggle Percentage / Price Change / Market Cap) */}
+                  {/* DYNAMIC TONAL BADGE (Clickable to toggle Percentage / Price Change / Market Cap) */}
                   <div
                     onClick={(e) => {
                       e.stopPropagation();
@@ -446,7 +558,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       cursor: 'pointer',
                     }}
                     className="change-badge"
-                    title="Click to toggle display mode: Percentage / Change / Market Cap"
+                    title="Click to toggle display: Percentage / Change / Market Cap"
                   >
                     {(() => {
                       if (isOffline) return '--';
@@ -465,9 +577,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                 </div>
 
-                {/* Delete Button (visible on card hover) */}
+                {/* Delete Button (M3 icon button on hover) */}
                 <button
-                  className="delete-btn"
+                  className="delete-btn md-icon-button"
                   onClick={(e) => {
                     e.stopPropagation();
                     onRemoveTicker(stock.symbol);
@@ -476,19 +588,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     position: 'absolute',
                     top: '6px',
                     right: '6px',
-                    background: 'rgba(0,0,0,0.65)',
-                    border: 'none',
-                    color: 'rgba(255,255,255,0.7)',
-                    padding: '4px',
-                    borderRadius: '50%',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    width: '26px',
+                    height: '26px',
+                    backgroundColor: 'var(--md-sys-color-surface-container-highest)',
+                    color: 'var(--md-sys-color-on-surface-variant)',
                   }}
                   title={`Remove ${stock.symbol}`}
+                  aria-label={`Remove ${stock.symbol}`}
                 >
-                  <Trash2 style={{ width: 11, height: 11 }} />
+                  <Trash2 size={12} />
                 </button>
               </div>
             );
@@ -496,7 +604,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </div>
 
-      {/* Floating macOS Right-Click Context Menu */}
+      {/* Floating Material 3 Context Menu */}
       {contextMenu && (
         <div
           className="watchlist-context-menu"
@@ -520,7 +628,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               setContextMenu(null);
             }}
           >
-            <Trash2 style={{ width: 14, height: 14 }} />
+            <Trash2 size={14} />
             <span>Remove {contextMenu.symbol}</span>
           </button>
         </div>

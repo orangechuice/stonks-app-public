@@ -48,73 +48,82 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.65)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
         animation: 'fadeIn 0.15s ease-out',
+        padding: '16px',
       }}
       onClick={onClose}
     >
+      {/* Material 3 Modal Dialog Container */}
       <div
         style={{
           width: '100%',
-          maxWidth: 400,
-          backgroundColor: '#1C1C1E',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          borderRadius: 16,
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08)',
+          maxWidth: 420,
+          backgroundColor: 'var(--md-sys-color-surface-container-high)',
+          border: '1px solid var(--md-sys-color-outline-variant)',
+          borderRadius: 'var(--md-sys-shape-extra-large)',
+          boxShadow: 'var(--md-sys-elevation-3)',
           padding: 24,
-          color: '#FFF',
+          color: 'var(--md-sys-color-on-surface)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              backgroundColor: 'rgba(10, 132, 255, 0.15)',
-              color: '#0A84FF',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <Calendar size={18} />
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 'var(--md-sys-shape-full)',
+                backgroundColor: 'var(--md-sys-color-primary-container)',
+                color: 'var(--md-sys-color-on-primary-container)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Calendar size={20} />
             </div>
             <div>
-              <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: '#FFF' }}>Select Custom Date Range</h2>
-              <p style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.45)', margin: 0 }}>
-                Choose start and end dates to calculate stock performance
+              <h2
+                className="md-typescale-title-large"
+                style={{ margin: 0, color: 'var(--md-sys-color-on-surface)', fontWeight: 700 }}
+              >
+                Date Range
+              </h2>
+              <p
+                className="md-typescale-body-small"
+                style={{ color: 'var(--md-sys-color-on-surface-variant)', margin: '2px 0 0 0' }}
+              >
+                Filter custom market timeline
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'rgba(255, 255, 255, 0.5)',
-              cursor: 'pointer',
-              padding: 6,
-              borderRadius: 6,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.15s ease',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#FFF')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255, 255, 255, 0.5)')}
+            className="md-icon-button"
+            style={{ width: 36, height: 36 }}
+            aria-label="Close"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Form Inputs */}
+        {/* Form Inputs (M3 Outlined Style) */}
         <form onSubmit={handleApply}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255, 255, 255, 0.7)', display: 'block', marginBottom: 6 }}>
+              <label
+                className="md-typescale-label-medium"
+                style={{
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                  display: 'block',
+                  marginBottom: 6,
+                }}
+              >
                 Start Date
               </label>
               <input
@@ -123,21 +132,36 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
                 onChange={(e) => setStartDate(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 14px',
-                  borderRadius: 8,
-                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  color: '#FFF',
+                  height: 48,
+                  padding: '0 14px',
+                  borderRadius: 'var(--md-sys-shape-medium)',
+                  backgroundColor: 'var(--md-sys-color-surface-container)',
+                  border: '1px solid var(--md-sys-color-outline-variant)',
+                  color: 'var(--md-sys-color-on-surface)',
                   fontSize: 14,
-                  fontFamily: 'inherit',
+                  fontFamily: 'var(--md-sys-typescale-font-plain)',
                   outline: 'none',
                   colorScheme: 'dark',
+                  transition: 'border-color var(--md-sys-motion-duration-short) ease',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--md-sys-color-primary)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--md-sys-color-outline-variant)';
                 }}
               />
             </div>
 
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255, 255, 255, 0.7)', display: 'block', marginBottom: 6 }}>
+              <label
+                className="md-typescale-label-medium"
+                style={{
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                  display: 'block',
+                  marginBottom: 6,
+                }}
+              >
                 End Date
               </label>
               <input
@@ -146,59 +170,86 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
                 onChange={(e) => setEndDate(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 14px',
-                  borderRadius: 8,
-                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  color: '#FFF',
+                  height: 48,
+                  padding: '0 14px',
+                  borderRadius: 'var(--md-sys-shape-medium)',
+                  backgroundColor: 'var(--md-sys-color-surface-container)',
+                  border: '1px solid var(--md-sys-color-outline-variant)',
+                  color: 'var(--md-sys-color-on-surface)',
                   fontSize: 14,
-                  fontFamily: 'inherit',
+                  fontFamily: 'var(--md-sys-typescale-font-plain)',
                   outline: 'none',
                   colorScheme: 'dark',
+                  transition: 'border-color var(--md-sys-motion-duration-short) ease',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--md-sys-color-primary)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--md-sys-color-outline-variant)';
                 }}
               />
             </div>
           </div>
 
           {errorMsg && (
-            <div style={{ marginTop: 14, fontSize: 12, fontWeight: 600, color: '#FF453A' }}>
+            <div
+              style={{
+                marginTop: 14,
+                fontSize: 12,
+                fontWeight: 600,
+                color: 'var(--md-sys-color-negative)',
+              }}
+            >
               {errorMsg}
             </div>
           )}
 
-          {/* Action Buttons */}
+          {/* Action Buttons (M3 Text Button & Filled Button) */}
           <div style={{ display: 'flex', gap: 10, marginTop: 24, justifyContent: 'flex-end' }}>
             <button
               type="button"
               onClick={onClose}
               style={{
-                padding: '10px 16px',
-                borderRadius: 8,
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                padding: '10px 18px',
+                borderRadius: 'var(--md-sys-shape-full)',
+                backgroundColor: 'transparent',
                 border: 'none',
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: 'var(--md-sys-color-primary)',
                 fontSize: 13,
                 fontWeight: 600,
                 cursor: 'pointer',
+                transition: 'background-color var(--md-sys-motion-duration-short) ease',
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--md-sys-state-hover)')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
             >
               Cancel
             </button>
             <button
               type="submit"
               style={{
-                padding: '10px 20px',
-                borderRadius: 8,
-                backgroundColor: '#0A84FF',
+                padding: '10px 22px',
+                borderRadius: 'var(--md-sys-shape-full)',
+                backgroundColor: 'var(--md-sys-color-primary)',
                 border: 'none',
-                color: '#FFF',
+                color: 'var(--md-sys-color-on-primary)',
                 fontSize: 13,
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                boxShadow: '0 4px 12px rgba(10, 132, 255, 0.35)',
+                boxShadow: 'var(--md-sys-elevation-1)',
+                transition: 'all var(--md-sys-motion-duration-short) ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-2)';
+                e.currentTarget.style.filter = 'brightness(1.08)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'var(--md-sys-elevation-1)';
+                e.currentTarget.style.filter = 'none';
               }}
             >
               <Check size={16} /> Apply Custom Range

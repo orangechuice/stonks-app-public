@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { ChartDataPoint, Timeframe, StockQuote, CustomDateRange } from '../types/stock';
-import { getColorShade, formatCurrency, formatNumber } from '../utils/colorUtils';
+import { getColorShade, formatCurrency } from '../utils/colorUtils';
 import { DateRangePickerModal } from './DateRangePickerModal';
 import { Calendar, AlertTriangle } from 'lucide-react';
 
@@ -141,7 +141,7 @@ export const StockChart: React.FC<StockChartProps> = ({
     return `${sStr} – ${eStr}`;
   };
 
-  // Render Horizontally Scrollable Apple Stocks-style Timeframe Selector Bar
+  // Render Material 3 Filter Chips Timeframe Selector Bar
   const renderTimeframeBar = () => (
     <div
       className="no-scrollbar"
@@ -149,11 +149,11 @@ export const StockChart: React.FC<StockChartProps> = ({
         width: '100%',
         display: 'flex',
         alignItems: 'center',
-        gap: 6,
+        gap: 8,
         overflowX: 'auto',
         WebkitOverflowScrolling: 'touch',
-        padding: '4px 2px',
-        marginBottom: selectedTimeframe === 'CUSTOM' ? 12 : 20,
+        padding: '2px 0 12px 0',
+        marginBottom: selectedTimeframe === 'CUSTOM' ? 12 : 16,
         userSelect: 'none',
       }}
     >
@@ -163,42 +163,11 @@ export const StockChart: React.FC<StockChartProps> = ({
           <button
             key={tf}
             onClick={() => handleTimeframeClick(tf)}
-            style={{
-              flex: '0 0 auto',
-              padding: '6px 14px',
-              fontSize: '13px',
-              fontWeight: 700,
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-              borderRadius: '20px',
-              border: isSelected ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid transparent',
-              backgroundColor: isSelected ? '#3A3A3C' : 'transparent',
-              color: isSelected ? '#FFFFFF' : 'rgba(255, 255, 255, 0.6)',
-              boxShadow: isSelected ? '0 2px 8px rgba(0, 0, 0, 0.4)' : 'none',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-              textAlign: 'center',
-              whiteSpace: 'nowrap',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 4,
-            }}
-            onMouseEnter={(e) => {
-              if (!isSelected) {
-                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-                e.currentTarget.style.color = '#FFFFFF';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isSelected) {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)';
-              }
-            }}
+            className={`md-filter-chip ${isSelected ? 'selected' : ''}`}
           >
             {tf === 'CUSTOM' ? (
               <>
-                <Calendar size={12} />
+                <Calendar size={13} />
                 <span>CUSTOM</span>
               </>
             ) : (
@@ -225,18 +194,20 @@ export const StockChart: React.FC<StockChartProps> = ({
         />
 
         {isLoading ? (
-          <div style={{
-            width: '100%',
-            height: 360,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-            borderRadius: 12,
-            backgroundColor: 'rgba(255, 255, 255, 0.02)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-          }}>
+          <div
+            style={{
+              width: '100%',
+              height: 360,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              borderRadius: 'var(--md-sys-shape-large)',
+              backgroundColor: 'var(--md-sys-color-surface-container-low)',
+              border: '1px solid var(--md-sys-color-outline-variant)',
+            }}
+          >
             {[0.2, 0.4, 0.6, 0.8].map((pct) => (
               <div
                 key={`skeleton-line-${pct}`}
@@ -246,110 +217,129 @@ export const StockChart: React.FC<StockChartProps> = ({
                   left: 0,
                   right: 0,
                   height: 1,
-                  borderTop: '1px dashed rgba(255, 255, 255, 0.06)',
+                  borderTop: '1px dashed var(--md-sys-color-outline-variant)',
                 }}
               />
             ))}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              color: 'rgba(255, 255, 255, 0.45)',
-              fontSize: 13,
-              fontWeight: 500,
-              zIndex: 2,
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                color: 'var(--md-sys-color-on-surface-variant)',
+                fontSize: 13,
+                fontWeight: 500,
+                zIndex: 2,
+              }}
+            >
               <div
                 style={{
-                  width: 16,
-                  height: 16,
+                  width: 20,
+                  height: 20,
                   borderRadius: '50%',
-                  border: '2px solid rgba(255, 255, 255, 0.15)',
-                  borderTopColor: '#0A84FF',
+                  border: '2.5px solid var(--md-sys-color-outline-variant)',
+                  borderTopColor: 'var(--md-sys-color-primary)',
                   animation: 'spin 0.8s linear infinite',
                 }}
               />
-              <span>Loading chart...</span>
+              <span>Loading chart data...</span>
             </div>
           </div>
         ) : (
-          <div style={{
-            width: '100%',
-            height: 300,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
-          }}>
-            {isRateLimited || quote?.isRateLimited || (!window.electronAPI && !Capacitor.isNativePlatform() && (quote?.isOffline || quote?.marketState === 'OFFLINE' || !quote)) ? (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                maxWidth: 440,
-                padding: '20px 24px',
-                borderRadius: 14,
-                backgroundColor: 'rgba(255, 159, 10, 0.1)',
-                border: '1px solid rgba(255, 159, 10, 0.25)',
-                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
-              }}>
-                <div style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(255, 159, 10, 0.18)',
+          <div
+            style={{
+              width: '100%',
+              height: 300,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+            }}
+          >
+            {isRateLimited ||
+            quote?.isRateLimited ||
+            (!window.electronAPI && !Capacitor.isNativePlatform() && (quote?.isOffline || quote?.marketState === 'OFFLINE' || !quote)) ? (
+              <div
+                style={{
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#FF9F0A',
-                  marginBottom: 12,
-                }}>
+                  maxWidth: 440,
+                  padding: '24px',
+                  borderRadius: 'var(--md-sys-shape-large)',
+                  backgroundColor: 'var(--md-sys-color-warning-container)',
+                  border: '1px solid rgba(255, 186, 40, 0.3)',
+                  color: 'var(--md-sys-color-on-warning-container)',
+                  boxShadow: 'var(--md-sys-elevation-2)',
+                }}
+              >
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 'var(--md-sys-shape-full)',
+                    backgroundColor: 'rgba(255, 186, 40, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 12,
+                  }}
+                >
                   <AlertTriangle size={24} />
                 </div>
-                <div style={{
-                  fontSize: 17,
-                  fontWeight: 700,
-                  color: '#FF9F0A',
-                  letterSpacing: '-0.01em',
-                  marginBottom: 6,
-                }}>
+                <div
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    letterSpacing: '-0.01em',
+                    marginBottom: 6,
+                  }}
+                >
                   Rate Limit Exceeded (HTTP 429)
                 </div>
-                <div style={{
-                  fontSize: 13,
-                  fontWeight: 400,
-                  color: 'rgba(255, 255, 255, 0.75)',
-                  lineHeight: 1.5,
-                  marginBottom: 8,
-                }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 400,
+                    opacity: 0.9,
+                    lineHeight: 1.5,
+                    marginBottom: 8,
+                  }}
+                >
                   Public CORS proxies for web mode are temporarily throttling requests due to high traffic.
                 </div>
-                <div style={{
-                  fontSize: 11,
-                  fontWeight: 500,
-                  color: 'rgba(255, 255, 255, 0.45)',
-                  lineHeight: 1.4,
-                }}>
-                  Please wait a few seconds for automatic recovery, or use the standalone macOS desktop app for direct access.
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 500,
+                    opacity: 0.75,
+                    lineHeight: 1.4,
+                  }}
+                >
+                  Please wait a few seconds for automatic recovery, or use the standalone desktop app for direct access.
                 </div>
               </div>
             ) : (
               <>
-                <div style={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  letterSpacing: '-0.01em',
-                  marginBottom: 6,
-                }}>
+                <div
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 700,
+                    color: 'var(--md-sys-color-on-surface-variant)',
+                    letterSpacing: '-0.01em',
+                    marginBottom: 6,
+                  }}
+                >
                   Chart Unavailable
                 </div>
-                <div style={{
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: 'rgba(255, 255, 255, 0.4)',
-                }}>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: 'var(--md-sys-color-outline)',
+                  }}
+                >
                   Stocks isn’t connected to the internet or no market data found for date range.
                 </div>
               </>
@@ -380,7 +370,7 @@ export const StockChart: React.FC<StockChartProps> = ({
   // Responsive SVG Canvas dimensions
   const svgWidth = Math.max(320, containerWidth);
   const svgHeight = 360;
-  const paddingRight = 36;
+  const paddingRight = 44;
   const paddingBottom = 30;
   const paddingTop = 20;
 
@@ -398,14 +388,14 @@ export const StockChart: React.FC<StockChartProps> = ({
   const areaD = `${fullPathD} L ${chartW} ${paddingTop + chartH} L 0 ${paddingTop + chartH} Z`;
 
   // Extended hours segmentation for 1D timeframe
-  const is1DWithExtended = selectedTimeframe === '1D' && chartData.some(d => d.isExtendedHours);
+  const is1DWithExtended = selectedTimeframe === '1D' && chartData.some((d) => d.isExtendedHours);
 
   // Group points by session
   const prePoints: typeof points = [];
   const regPoints: typeof points = [];
   const postPoints: typeof points = [];
 
-  points.forEach(p => {
+  points.forEach((p) => {
     if (p.data.session === 'pre') prePoints.push(p);
     else if (p.data.session === 'post') postPoints.push(p);
     else regPoints.push(p);
@@ -448,12 +438,10 @@ export const StockChart: React.FC<StockChartProps> = ({
     setHoverPoint(closest);
   };
 
-  // Mouse move handler for hover tooltip
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
     updateHoverPointFromClientX(e.clientX, e.currentTarget.getBoundingClientRect());
   };
 
-  // Touch Handlers for crosshair scrubbing
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length > 0) {
       updateHoverPointFromClientX(e.touches[0].clientX, e.currentTarget.getBoundingClientRect());
@@ -468,23 +456,34 @@ export const StockChart: React.FC<StockChartProps> = ({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }} ref={containerRef}>
-      {/* 100% Fully Responsive Segmented Timeframe Control Bar */}
+      {/* Material 3 Segmented Filter Chips */}
       {renderTimeframeBar()}
 
       {/* Custom Date Range Active Info Bar */}
       {selectedTimeframe === 'CUSTOM' && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 16,
-          padding: '8px 14px',
-          borderRadius: 8,
-          backgroundColor: 'rgba(10, 132, 255, 0.12)',
-          border: '1px solid rgba(10, 132, 255, 0.25)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: '#0A84FF' }}>
-            <Calendar size={15} />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 16,
+            padding: '10px 16px',
+            borderRadius: 'var(--md-sys-shape-medium)',
+            backgroundColor: 'var(--md-sys-color-secondary-container)',
+            border: '1px solid rgba(127, 207, 255, 0.3)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--md-sys-color-on-secondary-container)',
+            }}
+          >
+            <Calendar size={16} />
             <span>Range: {formatCustomBadgeLabel()}</span>
           </div>
           <button
@@ -492,7 +491,7 @@ export const StockChart: React.FC<StockChartProps> = ({
             style={{
               background: 'transparent',
               border: 'none',
-              color: '#0A84FF',
+              color: 'var(--md-sys-color-primary)',
               fontSize: 12,
               fontWeight: 700,
               cursor: 'pointer',
@@ -512,7 +511,7 @@ export const StockChart: React.FC<StockChartProps> = ({
         onApplyRange={handleApplyRange}
       />
 
-      {/* SVG Interactive Dynamic Full-Width Chart */}
+      {/* SVG Interactive Dynamic Chart */}
       <div
         style={{
           position: 'relative',
@@ -520,6 +519,7 @@ export const StockChart: React.FC<StockChartProps> = ({
           height: 360,
           touchAction: 'pan-y',
         }}
+        onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
       >
         <svg
@@ -536,7 +536,7 @@ export const StockChart: React.FC<StockChartProps> = ({
             </linearGradient>
           </defs>
 
-          {/* Grid lines */}
+          {/* Grid lines (M3 subtle outline variant) */}
           {[0, 0.25, 0.5, 0.75, 1].map((pct, idx) => {
             const yVal = paddingTop + chartH * pct;
             return (
@@ -546,7 +546,7 @@ export const StockChart: React.FC<StockChartProps> = ({
                 y1={yVal}
                 x2={chartW}
                 y2={yVal}
-                stroke="rgba(255, 255, 255, 0.05)"
+                stroke="var(--md-sys-color-outline-variant)"
                 strokeDasharray="4 4"
               />
             );
@@ -561,7 +561,7 @@ export const StockChart: React.FC<StockChartProps> = ({
                   y1={paddingTop}
                   x2={marketOpenX}
                   y2={paddingTop + chartH}
-                  stroke="rgba(255, 255, 255, 0.12)"
+                  stroke="var(--md-sys-color-outline-variant)"
                   strokeDasharray="2 2"
                 />
               )}
@@ -571,7 +571,7 @@ export const StockChart: React.FC<StockChartProps> = ({
                   y1={paddingTop}
                   x2={marketCloseX}
                   y2={paddingTop + chartH}
-                  stroke="rgba(255, 255, 255, 0.12)"
+                  stroke="var(--md-sys-color-outline-variant)"
                   strokeDasharray="2 2"
                 />
               )}
@@ -585,8 +585,9 @@ export const StockChart: React.FC<StockChartProps> = ({
               y1={prevCloseY}
               x2={chartW}
               y2={prevCloseY}
-              stroke="rgba(255, 255, 255, 0.25)"
+              stroke="var(--md-sys-color-outline)"
               strokeDasharray="3 3"
+              opacity="0.6"
             />
           )}
 
@@ -604,7 +605,7 @@ export const StockChart: React.FC<StockChartProps> = ({
                   stroke={shade.strokeColor}
                   strokeWidth="2"
                   strokeDasharray="4 3"
-                  opacity="0.8"
+                  opacity="0.85"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -630,7 +631,7 @@ export const StockChart: React.FC<StockChartProps> = ({
                   stroke={shade.strokeColor}
                   strokeWidth="2"
                   strokeDasharray="4 3"
-                  opacity="0.8"
+                  opacity="0.85"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -656,7 +657,7 @@ export const StockChart: React.FC<StockChartProps> = ({
                 y1={paddingTop}
                 x2={hoverPoint.x}
                 y2={paddingTop + chartH}
-                stroke="rgba(255, 255, 255, 0.4)"
+                stroke="var(--md-sys-color-outline)"
                 strokeDasharray="3 3"
               />
               <circle
@@ -664,14 +665,14 @@ export const StockChart: React.FC<StockChartProps> = ({
                 cy={hoverPoint.y}
                 r="5"
                 fill={shade.strokeColor}
-                stroke="#18181B"
+                stroke="var(--md-sys-color-surface-container)"
                 strokeWidth="2"
               />
             </g>
           )}
         </svg>
 
-        {/* Y Axis Price Labels (HTML overlay pushed to the far right) */}
+        {/* Y Axis Price Labels */}
         {[0, 0.25, 0.5, 0.75, 1].map((pct, idx) => {
           const yVal = paddingTop + chartH * pct;
           const priceVal = yMax - pct * yRange;
@@ -683,13 +684,14 @@ export const StockChart: React.FC<StockChartProps> = ({
                 top: yVal,
                 right: 0,
                 transform: 'translateY(-50%)',
-                color: 'rgba(255, 255, 255, 0.35)',
+                color: 'var(--md-sys-color-on-surface-variant)',
                 fontSize: 11,
-                fontFamily: 'JetBrains Mono, monospace',
+                fontFamily: 'var(--md-sys-typescale-font-mono)',
                 pointerEvents: 'none',
                 userSelect: 'none',
                 whiteSpace: 'nowrap',
                 textAlign: 'right',
+                opacity: 0.85,
               }}
             >
               {formatYAxisPrice(priceVal, yRange)}
@@ -697,7 +699,7 @@ export const StockChart: React.FC<StockChartProps> = ({
           );
         })}
 
-        {/* X Axis Time Labels (HTML overlay to prevent text squishing/stretching on resize) */}
+        {/* X Axis Time Labels */}
         {[0, 0.25, 0.5, 0.75, 1].map((pct, idx) => {
           const ptIdx = Math.floor(pct * (chartData.length - 1));
           const pt = chartData[ptIdx];
@@ -709,15 +711,16 @@ export const StockChart: React.FC<StockChartProps> = ({
               key={`x-label-${idx}`}
               style={{
                 position: 'absolute',
-                bottom: 8,
+                bottom: 6,
                 left: `${leftPct}%`,
                 transform,
-                color: 'rgba(255, 255, 255, 0.4)',
+                color: 'var(--md-sys-color-on-surface-variant)',
                 fontSize: 11,
-                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+                fontFamily: 'var(--md-sys-typescale-font-plain)',
                 pointerEvents: 'none',
                 userSelect: 'none',
                 whiteSpace: 'nowrap',
+                opacity: 0.85,
               }}
             >
               {formatXAxisLabel(pt, selectedTimeframe, customRange)}
@@ -725,7 +728,7 @@ export const StockChart: React.FC<StockChartProps> = ({
           );
         })}
 
-        {/* Hover Tooltip Overlay */}
+        {/* Material 3 Hover Tooltip Card */}
         {hoverPoint && (
           <div
             style={{
@@ -734,20 +737,27 @@ export const StockChart: React.FC<StockChartProps> = ({
               left: `${(hoverPoint.x / svgWidth) * 100}%`,
               transform: 'translate(-50%, -100%)',
               pointerEvents: 'none',
-              backgroundColor: '#1E1E22',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              backgroundColor: 'var(--md-sys-color-surface-container-highest)',
+              border: '1px solid var(--md-sys-color-outline-variant)',
               padding: '6px 12px',
-              borderRadius: '8px',
-              boxShadow: '0 8px 20px rgba(0,0,0,0.5)',
+              borderRadius: 'var(--md-sys-shape-medium)',
+              boxShadow: 'var(--md-sys-elevation-2)',
               textAlign: 'center',
               zIndex: 10,
             }}
           >
-            <div style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.5)' }}>
+            <div style={{ fontSize: 11, color: 'var(--md-sys-color-on-surface-variant)' }}>
               {hoverPoint.data.dateStr}
               {hoverPoint.data.session === 'post' ? ' (After Hours)' : hoverPoint.data.session === 'pre' ? ' (Pre-Market)' : ''}
             </div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', fontFamily: 'monospace' }}>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: 'var(--md-sys-color-on-surface)',
+                fontFamily: 'var(--md-sys-typescale-font-mono)',
+              }}
+            >
               {formatCurrency(hoverPoint.data.close, quote?.currency)}
             </div>
           </div>

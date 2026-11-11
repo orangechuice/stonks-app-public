@@ -78,7 +78,7 @@ export const MobileDetailSheet: React.FC<MobileDetailSheetProps> = ({
       onClose();
       setIsClosing(false);
       setIsMounted(false);
-    }, 400);
+    }, 350);
   };
 
   // Touch Swipe to Dismiss Gesture Handlers
@@ -118,40 +118,20 @@ export const MobileDetailSheet: React.FC<MobileDetailSheetProps> = ({
       className="mobile-detail-backdrop"
       onClick={handleDismiss}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: `rgba(0, 0, 0, ${!isSheetVisible ? 0 : Math.max(0.2, 0.6 - dragOffsetY / 400)})`,
-        backdropFilter: !isSheetVisible ? 'none' : 'blur(12px)',
-        WebkitBackdropFilter: !isSheetVisible ? 'none' : 'blur(12px)',
-        zIndex: 1000,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        transition: 'background-color 0.4s ease, backdrop-filter 0.4s ease',
+        backgroundColor: `rgba(0, 0, 0, ${!isSheetVisible ? 0 : Math.max(0.2, 0.65 - dragOffsetY / 400)})`,
+        backdropFilter: !isSheetVisible ? 'none' : 'blur(8px)',
+        WebkitBackdropFilter: !isSheetVisible ? 'none' : 'blur(8px)',
+        transition: 'background-color 0.35s ease, backdrop-filter 0.35s ease',
       }}
     >
-      {/* Slide-up / Slide-down Sheet Panel */}
+      {/* Material 3 Modal Bottom Sheet Panel */}
       <div
         ref={sheetRef}
-        className="mobile-detail-sheet"
+        className="mobile-detail-sheet md-bottom-sheet"
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: '100%',
-          height: '92vh',
-          maxHeight: '92vh',
-          backgroundColor: '#000000',
-          borderTopLeftRadius: '24px',
-          borderTopRightRadius: '24px',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.8)',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
           transform: `translateY(${translateYValue})`,
-          transition: isDragging ? 'none' : 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
+          transition: isDragging ? 'none' : 'transform 0.35s var(--md-sys-motion-easing-emphasized-decelerate)',
         }}
       >
         {/* Top Header & Swipe Handle */}
@@ -164,9 +144,9 @@ export const MobileDetailSheet: React.FC<MobileDetailSheetProps> = ({
           onMouseMove={handleTouchMove}
           onMouseUp={handleTouchEnd}
           style={{
-            padding: '12px 16px 8px 16px',
-            backgroundColor: '#000000',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            padding: '10px 16px 8px 16px',
+            backgroundColor: 'var(--md-sys-color-surface-container)',
+            borderBottom: '1px solid var(--md-sys-color-outline-variant)',
             display: 'flex',
             flexDirection: 'column',
             gap: '8px',
@@ -175,17 +155,8 @@ export const MobileDetailSheet: React.FC<MobileDetailSheetProps> = ({
             touchAction: 'none',
           }}
         >
-          {/* Pill Grab Handle */}
-          <div
-            style={{
-              width: '36px',
-              height: '5px',
-              backgroundColor: 'rgba(255, 255, 255, 0.3)',
-              borderRadius: '999px',
-              alignSelf: 'center',
-              marginBottom: '4px',
-            }}
-          />
+          {/* M3 Centered Pill Grab Handle */}
+          <div className="mobile-sheet-drag-handle" />
 
           {/* Action Bar (Close X button, Top Indices preview, Share/More buttons) */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
@@ -193,18 +164,12 @@ export const MobileDetailSheet: React.FC<MobileDetailSheetProps> = ({
             <button
               aria-label="Close"
               onClick={handleDismiss}
+              className="md-icon-button"
               style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255, 255, 255, 0.12)',
-                border: 'none',
-                color: '#FFFFFF',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'background-color 0.15s ease',
+                width: '36px',
+                height: '36px',
+                backgroundColor: 'var(--md-sys-color-surface-container-high)',
+                color: 'var(--md-sys-color-on-surface)',
               }}
             >
               <X size={18} />
@@ -222,7 +187,7 @@ export const MobileDetailSheet: React.FC<MobileDetailSheetProps> = ({
                     gap: '8px',
                     overflowX: 'auto',
                     padding: '2px 4px',
-                    maxWidth: 'calc(100% - 100px)',
+                    maxWidth: 'calc(100% - 104px)',
                   }}
                   className="no-scrollbar"
                 >
@@ -243,18 +208,18 @@ export const MobileDetailSheet: React.FC<MobileDetailSheetProps> = ({
                           fontSize: '11px',
                           fontWeight: 600,
                           whiteSpace: 'nowrap',
-                          backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.22)' : 'rgba(255, 255, 255, 0.08)',
-                          border: isSelected ? '1px solid rgba(255, 255, 255, 0.35)' : '1px solid rgba(255, 255, 255, 0.1)',
-                          borderRadius: '8px',
-                          padding: '4px 8px',
-                          color: '#FFFFFF',
+                          backgroundColor: isSelected ? 'var(--md-sys-color-secondary-container)' : 'var(--md-sys-color-surface-container-high)',
+                          border: isSelected ? '1px solid rgba(127, 207, 255, 0.4)' : '1px solid var(--md-sys-color-outline-variant)',
+                          borderRadius: 'var(--md-sys-shape-full)',
+                          padding: '4px 10px',
+                          color: isSelected ? 'var(--md-sys-color-on-secondary-container)' : 'var(--md-sys-color-on-surface)',
                           cursor: 'pointer',
-                          transition: 'all 0.15s ease',
+                          transition: 'all var(--md-sys-motion-duration-short) ease',
                           flexShrink: 0,
                         }}
                       >
                         <span style={{ fontWeight: isSelected ? 700 : 600 }}>{tQuote.symbol}</span>
-                        <span style={{ color: shade.textColor, fontFamily: '"JetBrains Mono", monospace' }}>
+                        <span style={{ color: shade.textColor, fontFamily: 'var(--md-sys-typescale-font-mono)' }}>
                           {formatPercent(tQuote.regularMarketChangePercent)}
                         </span>
                       </button>
@@ -265,37 +230,27 @@ export const MobileDetailSheet: React.FC<MobileDetailSheetProps> = ({
             })()}
 
             {/* Right Action Icons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <button
                 aria-label="Share"
+                className="md-icon-button"
                 style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
-                  border: 'none',
-                  color: '#FFFFFF',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
+                  width: '36px',
+                  height: '36px',
+                  backgroundColor: 'var(--md-sys-color-surface-container-high)',
+                  color: 'var(--md-sys-color-on-surface)',
                 }}
               >
                 <Share2 size={16} />
               </button>
               <button
                 aria-label="More"
+                className="md-icon-button"
                 style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
-                  border: 'none',
-                  color: '#FFFFFF',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
+                  width: '36px',
+                  height: '36px',
+                  backgroundColor: 'var(--md-sys-color-surface-container-high)',
+                  color: 'var(--md-sys-color-on-surface)',
                 }}
               >
                 <MoreHorizontal size={16} />

@@ -2,7 +2,6 @@ import React from 'react';
 import { StockQuote, ChartDataPoint, Timeframe, CustomDateRange } from '../types/stock';
 import { getColorShade, formatCurrency, formatCompactNumber, formatNumber, formatPercent } from '../utils/colorUtils';
 import { StockChart } from './StockChart';
-import { AlertTriangle } from 'lucide-react';
 
 interface StockDetailProps {
   symbol: string;
@@ -130,8 +129,8 @@ export const StockDetail: React.FC<StockDetailProps> = ({
 
   const shade = effectiveQuote ? getColorShade(effectiveQuote.regularMarketChangePercent) : {
     bgColor: 'rgba(255, 255, 255, 0.08)',
-    textColor: 'rgba(255, 255, 255, 0.5)',
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    textColor: 'var(--md-sys-color-on-surface-variant)',
+    borderColor: 'var(--md-sys-color-outline-variant)',
     glowColor: 'transparent',
   };
 
@@ -162,9 +161,9 @@ export const StockDetail: React.FC<StockDetailProps> = ({
         height: '100%',
         overflowY: 'auto',
         overflowX: 'hidden',
-        backgroundColor: '#121214',
+        backgroundColor: 'var(--md-sys-color-surface)',
         padding: '24px 32px',
-        color: '#FFF',
+        color: 'var(--md-sys-color-on-surface)',
         userSelect: 'none',
         zIndex: 10,
         touchAction: 'pan-y',
@@ -187,223 +186,301 @@ export const StockDetail: React.FC<StockDetailProps> = ({
         }}
         onAnimationEnd={() => setSlideAnimClass('')}
       >
-        {/* Header Section (Apple Stocks Inspired Layout) */}
+        {/* Header Section (Material 3 Asset Overview) */}
         <div style={{ marginBottom: '24px' }}>
-        {/* Ticker Symbol & Full Company Name */}
-        <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '8px 12px', marginBottom: '6px' }}>
-          <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.02em', color: '#FFF', margin: 0, lineHeight: 1.1 }}>
-            {displaySymbol}
-          </h1>
-          {displayShortName && (
-            <span style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255, 255, 255, 0.55)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
-              {displayShortName}
-            </span>
-          )}
-        </div>
-
-        {/* Dual Price & Badge Display */}
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px 20px', marginTop: '4px', marginBottom: '4px' }}>
-          {/* Regular Market Price */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: 26, fontWeight: 700, fontFamily: '"JetBrains Mono", monospace', color: '#FFF' }}>
-              {effectiveQuote ? formatCurrency(effectiveQuote.regularMarketPrice, effectiveQuote.currency) : '--'}
-            </span>
-            {effectiveQuote && (
-              <div
+          {/* Ticker Symbol & Full Company Name */}
+          <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '8px 14px', marginBottom: '6px' }}>
+            <h1
+              className="md-typescale-headline-large"
+              style={{
+                color: 'var(--md-sys-color-on-surface)',
+                margin: 0,
+                lineHeight: 1.1,
+              }}
+            >
+              {displaySymbol}
+            </h1>
+            {displayShortName && (
+              <span
+                className="md-typescale-title-medium"
                 style={{
-                  padding: '4px 8px',
-                  borderRadius: 6,
-                  fontSize: 13,
-                  fontWeight: 700,
-                  fontFamily: '"JetBrains Mono", monospace',
-                  backgroundColor: shade.bgColor,
-                  color: shade.textColor,
-                  border: `1px solid ${shade.borderColor}`,
-                  boxShadow: shade.glowColor !== 'transparent' ? `0 0 12px ${shade.glowColor}` : 'none',
+                  color: 'var(--md-sys-color-on-surface-variant)',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  maxWidth: '100%',
                 }}
               >
-                {formatPercent(effectiveQuote.regularMarketChangePercent)}
+                {displayShortName}
+              </span>
+            )}
+          </div>
+
+          {/* Dual Price & Badge Display */}
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '14px 20px', marginTop: '6px', marginBottom: '6px' }}>
+            {/* Regular Market Price */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span
+                style={{
+                  fontSize: 28,
+                  fontWeight: 700,
+                  fontFamily: 'var(--md-sys-typescale-font-mono)',
+                  color: 'var(--md-sys-color-on-surface)',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                {effectiveQuote ? formatCurrency(effectiveQuote.regularMarketPrice, effectiveQuote.currency) : '--'}
+              </span>
+              {effectiveQuote && (
+                <div
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: 'var(--md-sys-shape-full)',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    fontFamily: 'var(--md-sys-typescale-font-mono)',
+                    backgroundColor: shade.bgColor,
+                    color: shade.textColor,
+                    border: `1px solid ${shade.borderColor}`,
+                    boxShadow: shade.glowColor !== 'transparent' ? `0 0 12px ${shade.glowColor}` : 'none',
+                  }}
+                  className="md-tonal-badge"
+                >
+                  {formatPercent(effectiveQuote.regularMarketChangePercent)}
+                </div>
+              )}
+            </div>
+
+            {/* After Hours / Pre-Market Price & Badge */}
+            {extPrice != null && extShade && extChangePercent != null && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  borderLeft: '1px solid var(--md-sys-color-outline-variant)',
+                  paddingLeft: '16px',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 600,
+                    fontFamily: 'var(--md-sys-typescale-font-mono)',
+                    color: 'var(--md-sys-color-on-surface-variant)',
+                  }}
+                >
+                  {formatCurrency(extPrice, effectiveQuote?.currency)}
+                </span>
+                <div
+                  style={{
+                    padding: '3px 8px',
+                    borderRadius: 'var(--md-sys-shape-full)',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    fontFamily: 'var(--md-sys-typescale-font-mono)',
+                    backgroundColor: extShade.bgColor,
+                    color: extShade.textColor,
+                    border: `1px solid ${extShade.borderColor}`,
+                    boxShadow: extShade.glowColor !== 'transparent' ? `0 0 12px ${extShade.glowColor}` : 'none',
+                  }}
+                >
+                  {formatPercent(extChangePercent)}
+                </div>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: 'var(--md-sys-color-on-surface-variant)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  {extLabel}
+                </span>
               </div>
             )}
           </div>
 
-          {/* After Hours / Pre-Market Price & Badge */}
-          {extPrice != null && extShade && extChangePercent != null && (
-            <div style={{
+          {/* Timeframe Subtitle */}
+          <div
+            className="md-typescale-body-medium"
+            style={{ color: 'var(--md-sys-color-on-surface-variant)', marginTop: '4px' }}
+          >
+            {getTimeframeLabel(selectedTimeframe)}
+          </div>
+
+          {/* Exchange, Currency, Market Status Indicator */}
+          <div
+            className="md-typescale-body-small"
+            style={{
+              color: 'var(--md-sys-color-on-surface-variant)',
+              marginTop: '4px',
               display: 'flex',
-              alignItems: 'center',
               gap: '8px',
-              borderLeft: '1px solid rgba(255, 255, 255, 0.15)',
-              paddingLeft: '14px',
-            }}>
-              <span style={{ fontSize: 20, fontWeight: 600, fontFamily: '"JetBrains Mono", monospace', color: 'rgba(255, 255, 255, 0.85)' }}>
-                {formatCurrency(extPrice, effectiveQuote?.currency)}
-              </span>
-              <div
-                style={{
-                  padding: '3px 6px',
-                  borderRadius: 5,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  fontFamily: '"JetBrains Mono", monospace',
-                  backgroundColor: extShade.bgColor,
-                  color: extShade.textColor,
-                  border: `1px solid ${extShade.borderColor}`,
-                }}
-              >
-                {formatPercent(extChangePercent)}
-              </div>
-              <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255, 255, 255, 0.4)' }}>
-                {extLabel}
-              </span>
-            </div>
-          )}
+              alignItems: 'center',
+            }}
+          >
+            <span>{effectiveQuote?.exchangeName || 'US Market'}</span>
+            <span>·</span>
+            <span>{effectiveQuote?.currency || 'USD'}</span>
+            <span>·</span>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                color: effectiveQuote?.marketState === 'REGULAR' ? 'var(--md-sys-color-positive)' : 'var(--md-sys-color-on-surface-variant)',
+                fontWeight: 600,
+              }}
+            >
+              {effectiveQuote?.marketState === 'REGULAR' && (
+                <span
+                  style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--md-sys-color-positive)',
+                    display: 'inline-block',
+                    boxShadow: '0 0 6px var(--md-sys-color-positive)',
+                  }}
+                />
+              )}
+              {effectiveQuote?.marketState === 'REGULAR' ? 'Live' : 'At Close'}
+            </span>
+            <span>·</span>
+            <span style={{ textTransform: 'capitalize' }}>
+              {effectiveQuote?.marketState ? (effectiveQuote.marketState === 'REGULAR' ? 'Open' : effectiveQuote.marketState.toLowerCase()) : 'Offline'}
+            </span>
+          </div>
         </div>
 
-        {/* Timeframe Subtitle */}
-        <div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255, 255, 255, 0.5)', marginTop: '4px' }}>
-          {getTimeframeLabel(selectedTimeframe)}
-        </div>
-
-        {/* Exchange, Currency, Market Status Indicator */}
-        <div style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.4)', marginTop: '3px', display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span>{effectiveQuote?.exchangeName || 'US Market'}</span>
-          <span>·</span>
-          <span>{effectiveQuote?.currency || 'USD'}</span>
-          <span>·</span>
-          <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-            color: effectiveQuote?.marketState === 'REGULAR' ? '#30D158' : 'rgba(255, 255, 255, 0.4)',
-            fontWeight: 600,
-          }}>
-            {effectiveQuote?.marketState === 'REGULAR' && (
-              <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#30D158', display: 'inline-block' }} />
-            )}
-            {effectiveQuote?.marketState === 'REGULAR' ? 'Live' : 'At Close'}
-          </span>
-          <span>·</span>
-          <span style={{ textTransform: 'capitalize' }}>
-            {effectiveQuote?.marketState ? (effectiveQuote.marketState === 'REGULAR' ? 'Open' : effectiveQuote.marketState.toLowerCase()) : 'Offline'}
-          </span>
-        </div>
-      </div>
-
-      {/* Main Stock Chart Section */}
-      <div style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.04)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: 16,
-        padding: 24,
-        marginBottom: 24,
-        boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
-      }}>
-        <StockChart
-          quote={effectiveQuote}
-          chartData={chartData}
-          selectedTimeframe={selectedTimeframe}
-          onSelectTimeframe={onSelectTimeframe}
-          isLoading={isLoading}
-          customRange={customRange}
-          onApplyCustomRange={onApplyCustomRange}
-          isRateLimited={isRateLimited}
-          onNavigatePrevious={onNavigatePrevious}
-          onNavigateNext={onNavigateNext}
-        />
-      </div>
-
-      {/* Key Statistics Multi-Column Horizontally Scrollable Section */}
-      <div style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.04)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: 16,
-        padding: '20px 24px',
-      }}>
-        <h3 style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255, 255, 255, 0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 16 }}>
-          Key Statistics
-        </h3>
-
+        {/* Main Stock Chart Section (Material 3 Elevated Card) */}
         <div
-          className="no-scrollbar"
           style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '32px',
-            overflowX: 'auto',
-            WebkitOverflowScrolling: 'touch',
-            paddingBottom: '4px',
+            backgroundColor: 'var(--md-sys-color-surface-container)',
+            border: '1px solid var(--md-sys-color-outline-variant)',
+            borderRadius: 'var(--md-sys-shape-extra-large)',
+            padding: 24,
+            marginBottom: 24,
+            boxShadow: 'var(--md-sys-elevation-1)',
           }}
         >
-          {/* Column 1: Open, High, Low */}
-          <div style={{ flex: '0 0 auto', minWidth: '140px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '6px', gap: '16px' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>Open</span>
-              <span style={{ fontSize: 13, fontWeight: 600, fontFamily: '"JetBrains Mono", monospace', color: '#FFF' }}>
-                {effectiveQuote ? formatCurrency(effectiveQuote.regularMarketOpen) : '--'}
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '6px', gap: '16px' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>High</span>
-              <span style={{ fontSize: 13, fontWeight: 600, fontFamily: '"JetBrains Mono", monospace', color: '#FFF' }}>
-                {effectiveQuote ? formatCurrency(effectiveQuote.regularMarketDayHigh) : '--'}
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '6px', gap: '16px' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>Low</span>
-              <span style={{ fontSize: 13, fontWeight: 600, fontFamily: '"JetBrains Mono", monospace', color: '#FFF' }}>
-                {effectiveQuote ? formatCurrency(effectiveQuote.regularMarketDayLow) : '--'}
-              </span>
-            </div>
-          </div>
+          <StockChart
+            quote={effectiveQuote}
+            chartData={chartData}
+            selectedTimeframe={selectedTimeframe}
+            onSelectTimeframe={onSelectTimeframe}
+            isLoading={isLoading}
+            customRange={customRange}
+            onApplyCustomRange={onApplyCustomRange}
+            isRateLimited={isRateLimited}
+            onNavigatePrevious={onNavigatePrevious}
+            onNavigateNext={onNavigateNext}
+          />
+        </div>
 
-          {/* Column 2: Volume, P/E Ratio, Market Cap */}
-          <div style={{ flex: '0 0 auto', minWidth: '150px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '6px', gap: '16px' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>Vol</span>
-              <span style={{ fontSize: 13, fontWeight: 600, fontFamily: '"JetBrains Mono", monospace', color: '#FFF' }}>
-                {effectiveQuote ? formatCompactNumber(effectiveQuote.regularMarketVolume) : '--'}
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '6px', gap: '16px' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>P/E</span>
-              <span style={{ fontSize: 13, fontWeight: 600, fontFamily: '"JetBrains Mono", monospace', color: '#FFF' }}>
-                {effectiveQuote?.peRatio ? formatNumber(effectiveQuote.peRatio, 2) : '--'}
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '6px', gap: '16px' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>Mkt Cap</span>
-              <span style={{ fontSize: 13, fontWeight: 600, fontFamily: '"JetBrains Mono", monospace', color: '#FFF' }}>
-                {effectiveQuote ? formatCompactNumber(effectiveQuote.marketCap) : '--'}
-              </span>
-            </div>
-          </div>
+        {/* Key Statistics Section (Material 3 Elevated Card) */}
+        <div
+          style={{
+            backgroundColor: 'var(--md-sys-color-surface-container)',
+            border: '1px solid var(--md-sys-color-outline-variant)',
+            borderRadius: 'var(--md-sys-shape-extra-large)',
+            padding: '24px 28px',
+            boxShadow: 'var(--md-sys-elevation-1)',
+          }}
+        >
+          <h3
+            className="md-typescale-label-large"
+            style={{
+              color: 'var(--md-sys-color-on-surface-variant)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              marginBottom: 18,
+            }}
+          >
+            Key Statistics
+          </h3>
 
-          {/* Column 3: 52W High, 52W Low, Previous Close */}
-          <div style={{ flex: '0 0 auto', minWidth: '145px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '6px', gap: '16px' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>52W H</span>
-              <span style={{ fontSize: 13, fontWeight: 600, fontFamily: '"JetBrains Mono", monospace', color: '#FFF' }}>
-                {effectiveQuote ? formatCurrency(effectiveQuote.fiftyTwoWeekHigh) : '--'}
-              </span>
+          <div
+            className="no-scrollbar"
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '36px',
+              overflowX: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              paddingBottom: '4px',
+            }}
+          >
+            {/* Column 1: Open, High, Low */}
+            <div style={{ flex: '0 0 auto', minWidth: '150px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--md-sys-color-outline-variant)', paddingBottom: '8px', gap: '16px' }}>
+                <span className="md-typescale-body-medium" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Open</span>
+                <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'var(--md-sys-typescale-font-mono)', color: 'var(--md-sys-color-on-surface)' }}>
+                  {effectiveQuote ? formatCurrency(effectiveQuote.regularMarketOpen) : '--'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--md-sys-color-outline-variant)', paddingBottom: '8px', gap: '16px' }}>
+                <span className="md-typescale-body-medium" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>High</span>
+                <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'var(--md-sys-typescale-font-mono)', color: 'var(--md-sys-color-on-surface)' }}>
+                  {effectiveQuote ? formatCurrency(effectiveQuote.regularMarketDayHigh) : '--'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--md-sys-color-outline-variant)', paddingBottom: '8px', gap: '16px' }}>
+                <span className="md-typescale-body-medium" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Low</span>
+                <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'var(--md-sys-typescale-font-mono)', color: 'var(--md-sys-color-on-surface)' }}>
+                  {effectiveQuote ? formatCurrency(effectiveQuote.regularMarketDayLow) : '--'}
+                </span>
+              </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '6px', gap: '16px' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>52W L</span>
-              <span style={{ fontSize: 13, fontWeight: 600, fontFamily: '"JetBrains Mono", monospace', color: '#FFF' }}>
-                {effectiveQuote ? formatCurrency(effectiveQuote.fiftyTwoWeekLow) : '--'}
-              </span>
+
+            {/* Column 2: Volume, P/E Ratio, Market Cap */}
+            <div style={{ flex: '0 0 auto', minWidth: '160px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--md-sys-color-outline-variant)', paddingBottom: '8px', gap: '16px' }}>
+                <span className="md-typescale-body-medium" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Vol</span>
+                <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'var(--md-sys-typescale-font-mono)', color: 'var(--md-sys-color-on-surface)' }}>
+                  {effectiveQuote ? formatCompactNumber(effectiveQuote.regularMarketVolume) : '--'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--md-sys-color-outline-variant)', paddingBottom: '8px', gap: '16px' }}>
+                <span className="md-typescale-body-medium" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>P/E</span>
+                <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'var(--md-sys-typescale-font-mono)', color: 'var(--md-sys-color-on-surface)' }}>
+                  {effectiveQuote?.peRatio ? formatNumber(effectiveQuote.peRatio, 2) : '--'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--md-sys-color-outline-variant)', paddingBottom: '8px', gap: '16px' }}>
+                <span className="md-typescale-body-medium" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Mkt Cap</span>
+                <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'var(--md-sys-typescale-font-mono)', color: 'var(--md-sys-color-on-surface)' }}>
+                  {effectiveQuote ? formatCompactNumber(effectiveQuote.marketCap) : '--'}
+                </span>
+              </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '6px', gap: '16px' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255, 255, 255, 0.5)', fontWeight: 500 }}>Prev Close</span>
-              <span style={{ fontSize: 13, fontWeight: 600, fontFamily: '"JetBrains Mono", monospace', color: '#FFF' }}>
-                {effectiveQuote ? formatCurrency(effectiveQuote.previousClose) : '--'}
-              </span>
+
+            {/* Column 3: 52W High, 52W Low, Previous Close */}
+            <div style={{ flex: '0 0 auto', minWidth: '160px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--md-sys-color-outline-variant)', paddingBottom: '8px', gap: '16px' }}>
+                <span className="md-typescale-body-medium" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>52W H</span>
+                <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'var(--md-sys-typescale-font-mono)', color: 'var(--md-sys-color-on-surface)' }}>
+                  {effectiveQuote ? formatCurrency(effectiveQuote.fiftyTwoWeekHigh) : '--'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--md-sys-color-outline-variant)', paddingBottom: '8px', gap: '16px' }}>
+                <span className="md-typescale-body-medium" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>52W L</span>
+                <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'var(--md-sys-typescale-font-mono)', color: 'var(--md-sys-color-on-surface)' }}>
+                  {effectiveQuote ? formatCurrency(effectiveQuote.fiftyTwoWeekLow) : '--'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--md-sys-color-outline-variant)', paddingBottom: '8px', gap: '16px' }}>
+                <span className="md-typescale-body-medium" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Prev Close</span>
+                <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'var(--md-sys-typescale-font-mono)', color: 'var(--md-sys-color-on-surface)' }}>
+                  {effectiveQuote ? formatCurrency(effectiveQuote.previousClose) : '--'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
     </main>
   );
 };
-

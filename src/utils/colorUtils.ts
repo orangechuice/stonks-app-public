@@ -30,6 +30,7 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
  * - ±2% change: Reaches Clearly RED (Hue 0°) or GREEN (Hue 135°), rendered in a bright/lighter shade.
  * - 0% to ±2%: Smooth hue transition (Yellow -> Amber-Orange at 1.3% -> Clear Red at 2.0%) so values like -1.3% vs -2.68% are visually distinct.
  * - ±2% to ±100%: Scales progressively DARKER on a logarithmic scale (log1p) from bright (55% lightness) down to VERY DARK red/green (15% lightness) at ±100%.
+ * - Above ±100%: Clamped at maximum dark shade of red or green (15% lightness).
  */
 export function getColorShade(percentChange: number): ColorShade {
   const isPositive = percentChange >= 0;

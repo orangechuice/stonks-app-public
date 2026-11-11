@@ -7,7 +7,7 @@ interface StonksIconProps {
   useImage?: boolean;
 }
 
-export const StonksIcon: React.FC<StonksIconProps> = ({ className = '', size = 22, useImage = false }) => {
+export const StonksIcon: React.FC<StonksIconProps> = ({ className = '', size = 24, useImage = false }) => {
   if (useImage) {
     return (
       <img
@@ -35,34 +35,35 @@ export const StonksIcon: React.FC<StonksIconProps> = ({ className = '', size = 2
       xmlns="http://www.w3.org/2000/svg"
       className={`select-none ${className}`}
       style={{
-        borderRadius: `${Math.max(4, Math.round(size * 0.22))}px`,
+        borderRadius: `${Math.max(4, Math.round(size * 0.24))}px`,
         overflow: 'hidden',
         display: 'inline-block',
         verticalAlign: 'middle',
+        flexShrink: 0,
       }}
     >
-      {/* Background dark squircle */}
-      <rect width="100" height="100" rx="22" fill="#1C1C1E" />
-      <rect width="98" height="98" x="1" y="1" rx="21" fill="url(#bgGrad)" stroke="#3A3A3C" strokeWidth="1.5" />
+      {/* Background Material 3 Container Squircle */}
+      <rect width="100" height="100" rx="24" fill="#1D2024" />
+      <rect width="98" height="98" x="1" y="1" rx="23" fill="url(#bgGrad)" stroke="rgba(255, 255, 255, 0.12)" strokeWidth="1.5" />
 
       <defs>
         <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="100">
-          <stop offset="0%" stopColor="#2A2A2D" />
-          <stop offset="100%" stopColor="#121214" />
+          <stop offset="0%" stopColor="#272A2E" />
+          <stop offset="100%" stopColor="#191C20" />
         </linearGradient>
-        <filter id="cyanGlow" x="-30%" y="-30%" width="160%" height="160%">
+        <filter id="m3CyanGlow" x="-30%" y="-30%" width="160%" height="160%">
           <feGaussianBlur stdDeviation="3" result="blur" />
           <feComposite in="SourceGraphic" in2="blur" operator="over" />
         </filter>
       </defs>
 
-      {/* Shaky vertical grid lines (poorly hand-drawn feel) */}
-      <path d="M 22 6 C 20.5 32, 23 64, 21.5 94" stroke="rgba(255,255,255,0.12)" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M 40 7 C 41.5 30, 38.5 62, 40.2 93" stroke="rgba(255,255,255,0.12)" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M 59 6 C 60.5 34, 57.5 66, 59.2 94" stroke="rgba(255,255,255,0.12)" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M 78 7 C 76.5 31, 79 63, 77.8 93" stroke="rgba(255,255,255,0.12)" strokeWidth="1.8" strokeLinecap="round" />
+      {/* Vertical M3 grid lines */}
+      <path d="M 22 6 C 20.5 32, 23 64, 21.5 94" stroke="rgba(255,255,255,0.08)" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M 40 7 C 41.5 30, 38.5 62, 40.2 93" stroke="rgba(255,255,255,0.08)" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M 59 6 C 60.5 34, 57.5 66, 59.2 94" stroke="rgba(255,255,255,0.08)" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M 78 7 C 76.5 31, 79 63, 77.8 93" stroke="rgba(255,255,255,0.08)" strokeWidth="1.8" strokeLinecap="round" />
 
-      {/* Hand-drawn sketchy white stock trend line */}
+      {/* Playful sketchy stock trend line */}
       <path
         d="M 6 74 
            L 15 62 
@@ -77,13 +78,13 @@ export const StonksIcon: React.FC<StonksIconProps> = ({ className = '', size = 2
            L 84 46 
            L 94 20"
         fill="none"
-        stroke="#FFFFFF"
+        stroke="#E1E2E8"
         strokeWidth="4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
 
-      {/* Secondary shaky highlight overlay to give crayon/hand-drawn texture */}
+      {/* Secondary highlight line for crayon/hand-drawn texture */}
       <path
         d="M 6.5 73.5 
            L 15.5 62.5 
@@ -98,35 +99,35 @@ export const StonksIcon: React.FC<StonksIconProps> = ({ className = '', size = 2
            L 83.5 45.5 
            L 93.5 20.5"
         fill="none"
-        stroke="#E2E8F0"
+        stroke="#A8C7FA"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
 
-      {/* Hand-drawn vertical cyan cursor line */}
+      {/* M3 Primary vertical cursor indicator */}
       <path
         d="M 60 6 C 60.8 28, 59.2 58, 60.2 94"
-        stroke="#00D9FF"
+        stroke="#7FCFFF"
         strokeWidth="3.5"
         strokeLinecap="round"
       />
       <path
         d="M 60.3 8 C 59.5 32, 60.5 62, 59.7 92"
-        stroke="#7DD3FC"
+        stroke="#A8C7FA"
         strokeWidth="1.5"
         strokeLinecap="round"
       />
 
-      {/* Hand-drawn messy blue glowing circle over the peak at (60, 22) */}
-      <circle cx="60" cy="22" r="9" fill="#0284C7" opacity="0.4" />
-      <circle cx="60" cy="22" r="6" fill="#38BDF8" filter="url(#cyanGlow)" />
+      {/* M3 glowing peak indicator */}
+      <circle cx="60" cy="22" r="9" fill="#004A77" opacity="0.6" />
+      <circle cx="60" cy="22" r="6" fill="#7FCFFF" filter="url(#m3CyanGlow)" />
       
-      {/* Hand-drawn scribble ring around node */}
+      {/* Hand-drawn scribble ring around peak node */}
       <path
         d="M 51 22 C 51 16.5, 55 13, 60 13.5 C 65 14, 69 17.5, 68.5 22.5 C 68 27.5, 64 31, 59.5 30.5 C 55 30, 51.5 26.5, 51 22 Z"
         fill="none"
-        stroke="#38BDF8"
+        stroke="#A8C7FA"
         strokeWidth="2"
         strokeLinecap="round"
       />
