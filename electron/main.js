@@ -80,6 +80,9 @@ ipcMain.handle('fetch-stock-api', async (_event, url) => {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'application/json, text/plain, */*',
       },
+      // Without a bound, a stalled connection (e.g. after sleep or a network change) holds the
+      // request for Node's 5-minute default, freezing the detail view until it gives up.
+      signal: AbortSignal.timeout(10000),
     });
     if (res.ok) return await res.json();
   } catch (err) {

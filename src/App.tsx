@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Titlebar } from './components/Titlebar';
 import { Sidebar } from './components/Sidebar';
@@ -140,6 +140,9 @@ export const App: React.FC = () => {
     });
   };
 
+  // Watchlist rows only need market cap while the badge is showing it; otherwise skip the extra lookups.
+  const watchlistNeedsMarketCap = badgeDisplayMode === 'marketCap';
+
   // Load Watchlist Quotes for the active timeframe
   const loadWatchlistData = useCallback(async (
     timeframe: Timeframe = selectedTimeframe,
@@ -149,7 +152,7 @@ export const App: React.FC = () => {
     setIsRefreshing(true);
     try {
       const results = await Promise.all(
-        watchlistSymbols.map((sym) => fetchStockData(sym, timeframe, customRange, forceRefresh, false).catch(() => null))
+        watchlistSymbols.map((sym) => fetchStockData(sym, timeframe, customRange, forceRefresh, watchlistNeedsMarketCap).catch(() => null))
       );
       const quotes: StockQuote[] = results.map((res, idx) => {
         if (res) return res.quote;
@@ -179,27 +182,35 @@ export const App: React.FC = () => {
       console.error('Error fetching watchlist quotes:', err);
     }
     setIsRefreshing(false);
-  }, [watchlistSymbols, selectedTimeframe, customDateRange]);
+  }, [watchlistSymbols, selectedTimeframe, customDateRange, watchlistNeedsMarketCap]);
 
   // Load Detail Chart & Selected Stock Data
+  const latestDetailRequestRef = useRef(0);
   const loadDetailData = useCallback(async (
     symbol: string,
     timeframe: Timeframe,
     customRange: CustomDateRange = customDateRange,
     forceRefresh: boolean = false
   ) => {
+    // Background refreshes and symbol switches overlap; only the newest request may touch state,
+    // otherwise a slow response for a previous symbol overwrites the current one.
+    const requestId = ++latestDetailRequestRef.current;
+    const isLatest = () => requestId === latestDetailRequestRef.current;
+
     setIsLoadingChart(true);
+    let res: Awaited<ReturnType<typeof fetchStockData>> = null;
     try {
-      const res = await fetchStockData(symbol, timeframe, customRange, forceRefresh, true);
-      if (res) {
-        setSelectedQuote(res.quote);
-        setChartData(res.chart);
-      } else {
-        setSelectedQuote(null);
-        setChartData([]);
-      }
+      res = await fetchStockData(symbol, timeframe, customRange, forceRefresh, true);
     } catch (err) {
       console.error(`Error loading detail for ${symbol}:`, err);
+    }
+    if (!isLatest()) return;
+
+    if (res) {
+      setSelectedQuote(res.quote);
+      setChartData(res.chart);
+    } else if (!forceRefresh) {
+      // A failed refresh of the view already on screen keeps it; only a new view is cleared.
       setSelectedQuote(null);
       setChartData([]);
     }

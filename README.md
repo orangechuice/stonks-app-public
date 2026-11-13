@@ -66,36 +66,6 @@
 
 ---
 
-## 🛠 How It Works
-
-Stonks combines a modern React web frontend with Electron desktop and Capacitor Android containers for low latency, native system integration, and persistent local storage.
-
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                              Stonks App                                │
-├────────────────────────────┬─────────────────────────────┬─────────────┤
-│   Electron (macOS)         │   Capacitor (Android)       │ React (Web) │
-│  - Window Management       │  - Native HTTP CORS Bypass  │  - Sidebar  │
-│  - IPC Settings Handler    │  - Hardware Back Button     │  - Charts   │
-│  - Dock Icon & Native Menu │  - Native Status Bar        │  - Stats    │
-└──────────────┬─────────────┴──────────────┬──────────────┴──────┬──────┘
-               │                            │                     │
-               ▼                            ▼                     ▼
-       settings.json                 Yahoo Finance API (Direct / Proxy)
-```
-
-1. **Main Desktop Process (`electron/main.js`)**: Manages the desktop application lifecycle, window controls, and IPC settings persistence.
-2. **Android Container (`android/` & `capacitor.config.ts`)**: Hosts the web app in a native Android WebView with native HTTP request routing (bypassing CORS) and back-button navigation.
-3. **Frontend Application (`src/`)**:
-   - **`App.tsx`**: State coordinator managing watchlist state, active symbol, selected timeframe, and background data synchronization.
-   - **`Sidebar.tsx`**: Manages interactive ticker search, badge display mode toggles, and drag-and-drop item reordering.
-   - **`StockChart.tsx`**: Renders custom SVG chart representations with responsive path scaling, dynamic color gradients, crosshair tracking, and time labels.
-   - **`StockDetail.tsx`**: Displays detailed header information, timeframe selectors, interactive chart container, and key financial statistics cards.
-   - **`MobileDetailSheet.tsx`**: Slide-up detail sheet for mobile screens with touch-drag dismiss.
-   - **`yahooFinanceApi.ts`**: Handles network communication, response parsing, sparkline calculations, and query fallbacks.
-
----
-
 ## 🚀 Getting Started
 
 ### 📦 Pre-built macOS & Android Releases (GitHub Releases)

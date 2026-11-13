@@ -160,6 +160,10 @@ async function fetchYahooApi(url: string) {
       markRateLimitResolved();
       return data;
     }
+    // Like native mobile, do not fall through to the browser path: the renderer's direct fetch is
+    // CORS-blocked and the public proxies refuse desktop origins, so falling through only stalls
+    // the load and wrongly raises the web "rate limited" banner.
+    return null;
   }
 
   // 2. Mobile app: fetch natively via CapacitorHttp plugin (secure, bypasses browser CORS directly on device)
@@ -254,7 +258,77 @@ const EQUITY_FUNDAMENTALS: Record<string, { shares?: number; eps?: number }> = {
   'ETH-USD': { shares: 120.2e6 },
 };
 
-async function fetchQuoteDetails(symbol: string, currentPrice: number, isCustom?: boolean): Promise<{ marketCap?: number; peRatio?: number }> {
+interface NasdaqFundamentals {
+  sharesOutstanding?: number;
+  trailingEps?: number;
+}
+
+// Only the slow-moving inputs are cached: shares outstanding and trailing EPS change quarterly,
+// so market cap and P/E are both recomputed from the live price on every load. Caching Nasdaq's
+// finished market cap would freeze the price inside it. Without this cache, every 30s refresh
+// re-queried Nasdaq, and the market-cap badge would multiply that across the whole watchlist.
+const FUNDAMENTALS_TTL_MS = 15 * 60 * 1000;
+const fundamentalsCache = new Map<string, { data: NasdaqFundamentals; timestamp: number }>();
+const fundamentalsInFlight = new Map<string, Promise<{ data: NasdaqFundamentals; complete: boolean }>>();
+
+async function fetchNasdaqFundamentals(symUpper: string, livePrice?: number): Promise<{ data: NasdaqFundamentals; complete: boolean }> {
+  const encoded = encodeURIComponent(symUpper);
+  const [summaryJson, epsJson] = await Promise.all([
+    fetchYahooApi(`https://api.nasdaq.com/api/quote/${encoded}/summary?assetclass=stocks`).catch(() => null),
+    fetchYahooApi(`https://api.nasdaq.com/api/quote/${encoded}/eps?assetclass=stocks`).catch(() => null),
+  ]);
+
+  const data: NasdaqFundamentals = {};
+  // Nasdaq doesn't publish shares outstanding here, only market cap (its own live price × shares),
+  // so back the share count out of it with the live price. A Yahoo/Nasdaq price gap of a few cents
+  // skews it by a fraction of a percent.
+  let capNeedsPrice = false;
+
+  const capStr = summaryJson?.data?.summaryData?.MarketCap?.value;
+  if (typeof capStr === 'string' && capStr !== 'N/A') {
+    const parsedCap = parseFloat(capStr.replace(/,/g, ''));
+    if (!isNaN(parsedCap) && parsedCap > 0) {
+      if (livePrice && livePrice > 0) data.sharesOutstanding = parsedCap / livePrice;
+      else capNeedsPrice = true;
+    }
+  }
+
+  const list = epsJson?.data?.earningsPerShare;
+  if (Array.isArray(list) && list.length >= 4) {
+    data.trailingEps = list.slice(0, 4).reduce((acc: number, curr: any) => acc + (typeof curr.earnings === 'number' ? curr.earnings : 0), 0);
+  }
+
+  // A null response means the request itself failed (network, timeout, HTTP error), as opposed
+  // to Nasdaq answering without a value. Only fully answered lookups are worth caching.
+  return { data, complete: summaryJson != null && epsJson != null && !capNeedsPrice };
+}
+
+async function getNasdaqFundamentals(symUpper: string, livePrice?: number): Promise<NasdaqFundamentals> {
+  const cached = fundamentalsCache.get(symUpper);
+  if (cached && Date.now() - cached.timestamp < FUNDAMENTALS_TTL_MS) return cached.data;
+
+  // The watchlist and detail view often ask for the same symbol at the same moment; share one lookup.
+  let pending = fundamentalsInFlight.get(symUpper);
+  if (!pending) {
+    pending = fetchNasdaqFundamentals(symUpper, livePrice).finally(() => fundamentalsInFlight.delete(symUpper));
+    fundamentalsInFlight.set(symUpper, pending);
+  }
+  const { data, complete } = await pending;
+
+  if (complete) {
+    fundamentalsCache.set(symUpper, { data, timestamp: Date.now() });
+    return data;
+  }
+  // A failed refresh keeps the last good values instead of blanking P/E and market cap.
+  return {
+    sharesOutstanding: data.sharesOutstanding ?? cached?.data.sharesOutstanding,
+    trailingEps: data.trailingEps ?? cached?.data.trailingEps,
+  };
+}
+
+// `currentPrice` is the price the stats describe (the range-end close for a custom range);
+// `livePrice` is today's market price, which Nasdaq's market cap figure is based on.
+async function fetchQuoteDetails(symbol: string, currentPrice: number, isCustom?: boolean, livePrice?: number): Promise<{ marketCap?: number; peRatio?: number }> {
   const symUpper = symbol.toUpperCase();
 
   // Index funds & main index ETFs do not display market cap or PE
@@ -276,32 +350,12 @@ async function fetchQuoteDetails(symbol: string, currentPrice: number, isCustom?
 
   // 1. In Desktop or Native Mobile App, query Nasdaq APIs for live Market Cap and trailing P/E
   if (window.electronAPI?.fetchStockApi || Capacitor.isNativePlatform()) {
-    try {
-      const summaryUrl = `https://api.nasdaq.com/api/quote/${encodeURIComponent(symUpper)}/summary?assetclass=stocks`;
-      const res = await fetchYahooApi(summaryUrl);
-      const capStr = res?.data?.summaryData?.MarketCap?.value;
-      if (capStr && capStr !== 'N/A') {
-        const parsedCap = parseFloat(capStr.replace(/,/g, ''));
-        if (!isNaN(parsedCap) && parsedCap > 0) {
-          marketCap = parsedCap;
-        }
-      }
-    } catch (e) {
-      // Ignore error
+    const nasdaq = await getNasdaqFundamentals(symUpper, livePrice);
+    if (nasdaq.sharesOutstanding && currentPrice > 0) {
+      marketCap = currentPrice * nasdaq.sharesOutstanding;
     }
-
-    try {
-      const epsUrl = `https://api.nasdaq.com/api/quote/${encodeURIComponent(symUpper)}/eps?assetclass=stocks`;
-      const epsJson = await fetchYahooApi(epsUrl);
-      const list = epsJson?.data?.earningsPerShare;
-      if (Array.isArray(list) && list.length >= 4) {
-        const trailingEps = list.slice(0, 4).reduce((acc: number, curr: any) => acc + (typeof curr.earnings === 'number' ? curr.earnings : 0), 0);
-        if (trailingEps > 0 && currentPrice > 0) {
-          peRatio = currentPrice / trailingEps;
-        }
-      }
-    } catch (e) {
-      // Ignore error
+    if (nasdaq.trailingEps && nasdaq.trailingEps > 0 && currentPrice > 0) {
+      peRatio = currentPrice / nasdaq.trailingEps;
     }
   }
 
@@ -318,6 +372,8 @@ async function fetchQuoteDetails(symbol: string, currentPrice: number, isCustom?
 
 interface StockCacheEntry {
   data: { quote: StockQuote; chart: ChartDataPoint[] };
+  // Today's market price; differs from data.quote.regularMarketPrice for custom ranges.
+  livePrice?: number;
   timestamp: number;
 }
 
@@ -326,6 +382,8 @@ const CACHE_TTL_MS = 30 * 1000; // 30 seconds
 
 export function clearStockCache(): void {
   stockDataCache.clear();
+  fundamentalsCache.clear();
+  fundamentalsInFlight.clear();
 }
 
 export async function fetchStockData(
@@ -336,18 +394,33 @@ export async function fetchStockData(
   includeDetails: boolean = true
 ): Promise<{ quote: StockQuote; chart: ChartDataPoint[] } | null> {
   const cleanSymbol = symbol.toUpperCase();
-  const cacheKey = `${cleanSymbol}_${timeframe}_${customRange?.startDate || ''}_${customRange?.endDate || ''}_${includeDetails ? 'det' : 'basic'}`;
+  // Price/chart data is cached without fundamentals; market cap & P/E are layered on per request
+  // from their own longer-lived cache, so both callers share one chart fetch per symbol.
+  const cacheKey = `${cleanSymbol}_${timeframe}_${customRange?.startDate || ''}_${customRange?.endDate || ''}`;
+  const isCustom = timeframe === 'CUSTOM' && !!customRange?.startDate && !!customRange?.endDate;
+
+  const withDetails = async (base: { quote: StockQuote; chart: ChartDataPoint[] }, livePrice?: number) => {
+    if (!includeDetails) return base;
+    const details = await fetchQuoteDetails(symbol, base.quote.regularMarketPrice, isCustom, livePrice);
+    return {
+      chart: base.chart,
+      quote: {
+        ...base.quote,
+        marketCap: resolveMarketCap(symbol, details.marketCap ?? base.quote.marketCap),
+        peRatio: details.peRatio ?? base.quote.peRatio,
+      },
+    };
+  };
 
   if (!forceRefresh) {
     const cached = stockDataCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-      return cached.data;
+      return withDetails(cached.data, cached.livePrice);
     }
   }
 
   const targetSymbol = encodeURIComponent(cleanSymbol);
   let url = '';
-  const isCustom = timeframe === 'CUSTOM' && !!customRange?.startDate && !!customRange?.endDate;
   let customDiffDays = 0;
 
   if (isCustom && customRange) {
@@ -496,10 +569,6 @@ export async function fetchStockData(
         : (previousClose !== 0 ? Number(((preMarketChange / previousClose) * 100).toFixed(2)) : 0);
     }
 
-    const quoteDetails = includeDetails
-      ? await fetchQuoteDetails(symbol, currentPrice, isCustom)
-      : { marketCap: undefined, peRatio: undefined };
-
     const quote: StockQuote = {
       symbol: meta.symbol || symbol.toUpperCase(),
       shortName: meta.shortName || meta.longName || symbol.toUpperCase(),
@@ -516,8 +585,8 @@ export async function fetchStockData(
       regularMarketVolume: meta.regularMarketVolume || meta.volume || 0,
       fiftyTwoWeekHigh: meta.fiftyTwoWeekHigh || currentPrice * 1.15,
       fiftyTwoWeekLow: meta.fiftyTwoWeekLow || currentPrice * 0.85,
-      marketCap: resolveMarketCap(symbol, quoteDetails.marketCap ?? meta.marketCap),
-      peRatio: quoteDetails.peRatio ?? meta.trailingPE ?? meta.peRatio,
+      marketCap: resolveMarketCap(symbol, meta.marketCap),
+      peRatio: meta.trailingPE ?? meta.peRatio,
       sparkline: downsamplePrices(pricesForCalc, 30),
       marketState: deriveMarketState(meta),
       postMarketPrice,
@@ -530,9 +599,10 @@ export async function fetchStockData(
     };
 
     const stockData = { quote, chart: chartPoints };
-    stockDataCache.set(cacheKey, { data: stockData, timestamp: Date.now() });
+    const livePrice = meta.regularMarketPrice > 0 ? meta.regularMarketPrice : (isCustom ? undefined : currentPrice);
+    stockDataCache.set(cacheKey, { data: stockData, livePrice, timestamp: Date.now() });
 
-    return stockData;
+    return withDetails(stockData, livePrice);
   }
 
   // Return null when unable to fetch live data (offline or API error)
